@@ -1,1 +1,2 @@
 # soul-workcode
+just test
