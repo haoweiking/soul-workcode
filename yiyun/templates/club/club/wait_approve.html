@@ -1,0 +1,63 @@
+{% extends "blank.html" %}
+
+{% set page_title = "注册" %}
+{% set body_class = "page-register-v3 layout-full" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/register-v3.css') }}">
+{% endblock %}
+
+{% block body %}
+    <!-- Page -->
+    <div class="page animsition vertical-align text-center" data-animsition-in="fade-in"
+    data-animsition-out="fade-out">
+      <div class="page-content vertical-align-middle">
+        <div class="panel">
+          <div class="panel-body">
+            <div class="brand">
+              <img class="brand-img" src="{{ static_url('img/logo.png') }}" style="width:80px" alt="...">
+              <h2 class="brand-text font-size-18">派队管家注册</h2>
+            </div>
+            <div>
+              <div class="pearls pearls-sm row">
+                <div class="pearl done col-xs-4">
+                  <span class="pearl-number">1</span>
+                  <span class="pearl-title">注册账号</span>
+                </div>
+                <div class="pearl done col-xs-4">
+                  <span class="pearl-number">2</span>
+                  <span class="pearl-title">填写资料</span>
+                </div>
+                <div class="pearl current col-xs-4">
+                  <span class="pearl-number">3</span>
+                  <span class="pearl-title">等待审核</span>
+                </div>
+              </div>
+              <p class="lead text-muted" style="display: block;padding-top:25px; padding-bottom:25px;">
+                我们会在2个工作日之内完成审核，请耐心等待！
+              </p>
+            </div>
+            <p>换个账号？请 <a href="{{ reverse_url('club_auth_login') }}">退出</a></p>
+          </div>
+        </div>
+        <footer class="page-copyright page-copyright-inverse">
+          <p>© 2016 派队管家</p>
+        </footer>
+      </div>
+    </div>
+    <!-- End Page -->
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+  (function(document, window, $){
+    'use strict';
+
+    var Site = window.Site;
+    $(document).ready(function(){
+      Site.run();
+    })
+    
+  })(document, window, jQuery);
+</script>
+{% endblock %}

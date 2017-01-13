@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% set page_title = "添加新的分类" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "news" %}
+{% set site_submenu_active = "categories_create" %}
+
+{% block body %}
+<div class="page" id="vue-app">
+  <div class="page-header">
+    <h1 class="page-title">添加新的分类</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('club_article_categories_list') }}">文章分类列表</a></li>
+      <li class="active">添加新的分类</li>
+    </ol>
+  </div>
+  <div class="page-content container-fluid">
+    <div class="panel">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-4">
+          {% from "shared/macro.html" import render_form %}
+          <form method="post" action="#" id="article-create-form" enctype="multipart/form-data">
+            {{ render_form(form) }}
+            <button type="submit" id="btn-submit" class="btn btn-primary btn-lg">添加</button>
+          </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+

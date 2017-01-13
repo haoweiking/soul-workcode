@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+
+{% set page_title = "比赛详情" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "match" %}
+{% set site_submenu_active = "create" %}
+
+{% block styles %}
+<style>
+    .nav-tabs > li {
+        margin-right: 20px;
+    }
+
+    .nav-tabs > li > a {
+        padding: 6px 3px;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+    }
+
+    .fa-futbol-o {
+        color: #a788d2;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+    <div class="page-header" style="z-index:999">
+        <h1 class="page-title">
+            <i class="fa fa-futbol-o" aria-hidden="true"></i>
+            {{ match.title }}
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+            <li><a href="{{ reverse_url('club_matches') }}">赛事管理</a></li>
+            <li class="active">{{ match.title }}</li>
+        </ol>
+        <div class="page-header-actions">
+            <a href="{{ reverse_url('club_match_members_list', match.id) }}"
+               class="btn btn-primary">查看报名成员</a>
+            <a href="{{ reverse_url('club_match_statuses', match.id) }}"
+               class="btn btn-primary" role="menuitem">查看战报</a>
+
+            {% if match.can_apply_settlement() %}
+            {% if is_application_exist %}
+            <a href="javascript:void(0)" class="btn btn-primary disabled">结算申请已提交</a>
+            {% else %}
+            <a href="javascript:void(0)" data-id="{{ match.id }}"
+               data-url="{{ reverse_url('club_match_detail_action') }}"
+               data-action="settlement_application" role="menuitem"
+               data-confirm="确定提交结算申请？" data-success="提交结算申请成功"
+               class="btn btn-primary btn-action">提交结算申请</a>
+            {% endif %}
+            {% endif %}
+
+            <div class="btn-group text-right">
+                <a href="#" class="dropdown-toggle btn btn-primary"
+                   data-toggle="dropdown" aria-expanded="false">
+                    更多操作
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li role="presentation">
+                        <a href="{{ reverse_url('club_round_create', match.id) }}">创建轮次</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="{{ reverse_url('club_round_add_cover', match.id) }}">添加海报</a>
+                    </li>
+                    {% if match.can_change() %}
+                    <li role="presentation">
+                        <a href="{{ reverse_url('club_matches_edit', match.id) }}">编辑</a>
+                    </li>
+                    {% endif %}
+                    {% if match.can_cancel() %}
+                    <li role="presentation">
+                        <a href="javascript:void(0)" id="disable-btn"
+                           data-url="{{ reverse_url('club_matches_disable', match.id) }}"
+                           data-confirm="确定要取消此赛事？取消后所有已交报名费将退款"
+                           data-success="取消赛事成功">取消</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="page-content container-fluid">
+        <div class="panel">
+            <div class="panel-body">
+                <div class="nav-tabs-horizontal">
+                    <ul class="nav nav-tabs" data-plugin="nav-tabs"
+                        role="tablist">
+                        <li class="active" role="presentation"><a
+                                data-toggle="tab" href="#tab-basic"
+                                aria-controls="tab-basic" role="tab">基本信息</a>
+                        </li>
+                        <li role="presentation"><a data-toggle="tab"
+                                                   href="#tab-description"
+                                                   aria-controls="tab-description"
+                                                   role="tab">简介</a></li>
+                        <li role="presentation"><a data-toggle="tab"
+                                                   href="#tab-rules"
+                                                   aria-controls="tab-rules"
+                                                   role="tab">规程</a></li>
+                        <li role="presentation"><a data-toggle="tab"
+                                                   href="#tab-groups"
+                                                   aria-controls="tab-groups"
+                                                   role="tab">分组</a></li>
+                        <li role="presentation"><a data-toggle="tab"
+                                                   href="#tab-apply-form"
+                                                   aria-controls="tab-apply-form"
+                                                   role="tab">报名表</a></li>
+                        <li></li>
+                        <li role="presentation"><a data-toggle="tab"
+                                                   href="#tab-rounds"
+                                                   aria-controls="tab-rounds"
+                                                   role="tab">赛程</a></li>
+                        <li role="presentation"><a data-toggle="tab"
+                                                   href="#tab-covers"
+                                                   aria-controls="tab-covers"
+                                                   role="tab">海报列表</a></li>
+                        <li role="presentation"><a data-toggle="tab"
+                                                   href="#tab-preview"
+                                                   aria-controls="tab-preview"
+                                                   role="tab">预览赛事</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-20">
+                        <div class="tab-pane active" id="tab-basic"
+                             role="tabpanel">
+                            <table class="table table-bordered table-hover">
+                                <tr>
+                                    <th style="width: 150px">封面</th>
+                                    <td>
+                                        {% if match.cover %}
+                                        <img src="{{ match.get_cover_url(size='small', crop=False) }}"
+                                             alt="" style="height:120px;">
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th style="width: 120px">标题</th>
+                                    <td>{{ match.title }}</td>
+                                </tr>
+                                <tr>
+                                    <th>运动类型</th>
+                                    <td>{{ match.sport_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>状态</th>
+                                    <td>
+                                        {{ match.state_name }}
+                                        {% if match.state ==
+                                        match.MatchState.rejected %}
+                                        <br>
+                                        <small class="text-danger">原因: {{
+                                            match.reject_reason }}
+                                        </small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>比赛时间</th>
+                                    <td>{{ match.start_time }} 至 {{
+                                        match.end_time }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>报名截止</th>
+                                    <td>{{ match.join_end }}</td>
+                                </tr>
+                                <tr>
+                                    <th>报名类型</th>
+                                    <td>{{ match.join_type_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>报名费</th>
+                                    <td>￥{{ match.price }}元</td>
+                                </tr>
+                                <tr>
+                                    <th>数量限制</th>
+                                    <td>{{ match.max_members }}</td>
+                                </tr>
+                                <tr>
+                                    <th>退款策略</th>
+                                    <td>{{ match.refund_type_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>联系人</th>
+                                    <td>{{ match.contact_person }}</td>
+                                </tr>
+                                <tr>
+                                    <th>联系电话</th>
+                                    <td>{{ match.contact_phone }}</td>
+                                </tr>
+                                <tr>
+                                    <th>城市</th>
+                                    <td>{{ match.country }} {{ match.province }}
+                                        {{ match.city }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>详细地址</th>
+                                    <td>{{ match.address }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="tab-description"
+                             role="tabpanel">
+                            {{ match.description|safe }}
+                        </div>
+                        <div class="tab-pane" id="tab-rules" role="tabpanel">
+                            {{ match.rules|safe }}
+                        </div>
+                        <div class="tab-pane" id="tab-groups" role="tabpanel">
+                            <table class="table table-bordered table-hover"
+                                   style="max-width:500px;">
+                                <thead>
+                                <tr>
+                                    <th>分组名</th>
+                                    <th>报名费</th>
+                                    <th>数量限制</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for group in groups %}
+                                <tr>
+                                    <td>{{ group.name }}</td>
+                                    <td>{{ group.price }}</td>
+                                    <td>{{ group.max_members }}</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="tab-apply-form"
+                             role="tabpanel">
+                            <h5>系统选项：</h5>
+                            <p>{{ "，".join(match.field_names) }}</p>
+
+                            <h5>自定义选项：</h5>
+                            <table class="table table-bordered table-hover"
+                                   style="max-width:500px;">
+                                <thead>
+                                <tr>
+                                    <th>选项名</th>
+                                    <th>类型</th>
+                                    <th>必填</th>
+                                    <th>可选项</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for option in custom_options %}
+                                <tr>
+                                    <td>{{ option.title }}</td>
+                                    <td>{{ option.field_type_name }}</td>
+                                    <td>{{ "是" if option.required else "否" }}
+                                    </td>
+                                    <td>{{ option.choices }}</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="tab-rounds" role="tabpanel">
+                            <table class="table table-bordered table-hover">
+                                <tbody>
+                                {% for round in rounds %}
+                                <tr id="item-{{ match.id }}">
+                                    <td class="text-center">
+                                        {{ round.name }}
+                                        [<a href="{{ reverse_url('club_round_edit', round.id) }}"
+                                            role="menuitem">编辑</a>]
+                                        [<a href="javascript:void(0)"
+                                            class="btn-action"
+                                            data-id="{{ round.id }}"
+                                            data-url="{{ reverse_url('club_match_detail_action') }}"
+                                            data-action="delete_round"
+                                            role="menuitem" data-confirm="确定删除？"
+                                            data-success="删除轮次成功">删除</a>]
+                                        [<a href="{{ reverse_url('club_round_againsts', round.id) }}">设置对阵图</a>]
+                                    </td>
+                                </tr>
+                                {% if match.type == 1 %}
+                                <tr class="text-center">
+                                    <td>
+                                        地址：{{ round.address or "" }} 时间: {{
+                                        round.start_time or "" }}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                <tr class="text-center">
+                                    <td>
+                                        {% if round.id not in againsts %}
+                                        未设置对阵图
+                                        {% else %}
+                                        {% if match.type == 0 %}
+                                        <table class="table table-bordered table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th>主</th>
+                                                <th>客</th>
+                                                <th>地址</th>
+                                                <th>时间</th>
+                                                <th>比分</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for against in againsts[round.id]
+                                            -%}
+                                            <tr>
+                                                <td>{{ against.left_member.name
+                                                    }}
+                                                </td>
+                                                <td>{{ against.right_member.name
+                                                    }}
+                                                </td>
+                                                <td>{{ against.address }}</td>
+                                                <td>{{ against.start_time }}
+                                                </td>
+                                                <td>{{ against.left_score }}:{{
+                                                    against.right_score }}
+                                                </td>
+                                            </tr>
+                                            {%- endfor %}
+                                            </tbody>
+                                        </table>
+                                        {% else %}
+                                        <table class="table table-bordered table-hover"
+                                               style="width:500px;margin:10 auto">
+                                            <thead>
+                                            <tr>
+                                                <th>参赛者</th>
+                                                <th>成绩</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for against in againsts[round.id]
+                                            -%}
+                                            <tr>
+                                                <td>{{ against.left_member.name
+                                                    }}
+                                                </td>
+                                                <td>{{ against.left_score }}
+                                                </td>
+                                            </tr>
+                                            {%- endfor %}
+                                            </tbody>
+                                        </table>
+                                        {% endif %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="tab-covers" role="tabpanel">
+                            <table class="table table-bordered table-hover"
+                                   style="max-width:500px;">
+                                <thead>
+                                <tr>
+                                    <th>显示位置</th>
+                                    <th>海报</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for cover in covers %}
+                                <tr>
+                                    <td valign="middle"
+                                        style="vertical-align:middle">{{
+                                        cover.position_name }}
+                                    </td>
+                                    <td valign="middle"
+                                        style="vertical-align:middle">
+                                        <img src="{{ cover.get_cover_url(size='small', crop=False) }}"
+                                             alt="" style="height:120px;">
+                                    </td>
+                                    <td valign="middle"
+                                        style="vertical-align:middle">
+                                        <a href="#" class="delete-cover"
+                                           role="menuitem"
+                                           data-cover_id="{{ cover.id }}">
+                                            删除
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="tab-preview" role="tabpanel">
+                            <div style="max-width:400px;margin-left: 100px;margin-top: 20px;">
+                                <h3 class="text-muted text-center">
+                                    请打开派对APP扫描此二维码</h3>
+                                <div class="text-center">
+                                    <img src="{{ reverse_url('club_match_preview_qr', match.id) }}"
+                                         alt="预览二维码" width="370" height="370">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    var cities = {{ json_encode(cities) | safe }};
+
+    alertify.theme("bootstrap");
+
+    (function (document, window, $) {
+        'use strict';
+        var is_mobile = !!(navigator.userAgent.match(/Mobile/i));
+        var Site = window.Site;
+
+        // var app = new Vue({
+        //   el: "#vue-app",
+        //   data: function() {
+        //       return {
+        //       }
+        //   },
+        //   ready: function(){
+        //     Site.run();
+        //   },
+        //   methods: {
+        //       openRoundSetting: function(){
+
+        //       }
+        //   }
+        // });
+
+        $(".delete-cover").click(function () {
+            var cover_id = $(this).data('cover_id'),
+                    action_url = "{{ reverse_url('club_match_delete_cover', match.id) }}";
+
+
+            alertify.okBtn("确定")
+                    .cancelBtn("放弃")
+                    .confirm("确定要删除海报？", function () {
+                        $.post(action_url, {"cover_id": cover_id}, function (data) {
+                            if ('status' in data && data['status'] == 'ok') {
+                                toastr.success("删除成功", "", {
+                                    "positionClass": "toast-top-center",
+                                    "timeOut": 800
+                                });
+
+                                setTimeout(function () {
+                                    location.reload();
+                                }, 900);
+                            }
+                        }, "json").fail(function (e) {
+                            console.log(e);
+                        });
+                    }, function () {
+                        // user clicked "cancel"
+                    });
+
+        });
+
+
+        $("#disable-btn").click(function () {
+            var action_url = $(this).data("url"),
+                    confirm_msg = $(this).data("confirm"),
+                    success_msg = $(this).data("success");
+
+            alertify.okBtn("确定")
+                    .cancelBtn("放弃")
+                    .confirm(confirm_msg, function () {
+                        $.post(action_url, {}, function (data) {
+                            if ("status" in data && data['status'] == "ok") {
+                                toastr.success(success_msg, "", {
+                                    "positionClass": "toast-top-center",
+                                    "timeOut": 1000
+                                });
+
+                                setTimeout(function () {
+                                    location.reload();
+                                }, 1100);
+                            }
+                        }, "json").fail(function (e) {
+                            console.log(e);
+                        });
+                    }, function () {
+                        // user clicked "cancel"
+                    });
+        });
+
+        $(".btn-action").click(function () {
+            var id = $(this).data("id"),
+                    action_url = $(this).data("url"),
+                    confirm_msg = $(this).data("confirm"),
+                    success_msg = $(this).data("success"),
+                    action = $(this).data("action");
+
+            alertify.okBtn("确定")
+                    .cancelBtn("放弃")
+                    .confirm(confirm_msg, function () {
+                        $.post(action_url, {
+                            "action": action,
+                            "id": id
+                        }, function (data) {
+                            if ("status" in data && data['status'] == "ok") {
+                                toastr.success(success_msg, "", {
+                                    "positionClass": "toast-top-center",
+                                    "timeOut": 1000
+                                });
+
+                                setTimeout(function () {
+                                    location.reload();
+                                }, 1100);
+                            }
+                        }, "json").fail(function (e) {
+                            console.log(e);
+                        });
+                    }, function () {
+                        // user clicked "cancel"
+                    });
+        });
+
+    })(document, window, jQuery);
+</script>
+{% endblock %}

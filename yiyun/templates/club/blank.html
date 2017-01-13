@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html class="no-js css-menubar" lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta name="description" content="bootstrap admin template">
+
+    <title>{{ page_title }} | 派队管家管理</title>
+
+    {% if debug %}
+    <link rel="stylesheet" href="{{ static_url('css/vendor.css') }}">
+    {% else %}
+    <link rel="stylesheet" href="{{ static_url('css/vendor.min.css') }}">
+    {% endif %}
+    <link rel="stylesheet" href="{{ static_url('css/main.css') }}">
+
+    {% block styles %}{% endblock %}
+
+    <link rel="stylesheet" href="{{ static_url('fonts/web-icons/web-icons.min.css') }}">
+    <link rel="stylesheet" href="{{ static_url('fonts/brand-icons/brand-icons.min.css') }}">
+
+    <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+    <script src="{{ static_url('vendor/html5shiv/html5shiv.min.js') }}"></script>
+    <![endif]-->
+
+    <!--[if lt IE 10]>
+    <script src="{{ static_url('vendor/media-match/media.match.min.js') }}"></script>
+    <script src="{{ static_url('vendor/respond/respond.min.js') }}"></script>
+    <![endif]-->
+
+    <!-- Scripts -->
+    <script src="{{ static_url('vendor/modernizr/modernizr.js') }}"></script>
+    <script src="{{ static_url('vendor/breakpoints/breakpoints.js') }}"></script>
+    <script>
+      Breakpoints();
+    </script>
+  </head>
+  <body{% if body_class %} class="{{ body_class }}"{% endif %}>
+    <!--[if lt IE 8]>
+    <p class="browserupgrade">您使用的是 <strong>非常过时</strong> 的浏览器，可能无法正常浏览本站，请 <a href="http://browsehappy.com/">升级您的浏览器</a> 以获取更好的体验。</p>
+    <![endif]-->
+
+    {% block body %}
+    <div class="page animsition">Hello World</div>
+    {% endblock %}
+
+    <script src="{{ static_url('vendor/jquery/jquery.js') }}"></script>
+    <script src="{{ static_url('vendor/bootstrap/bootstrap.js') }}"></script>
+    <script src="{{ static_url('js/vendor.js') }}"></script>
+
+    <script src="{{ static_url('js/core.js') }}"></script>
+    <script src="{{ static_url('js/site.js') }}"></script>
+
+    <script src="{{ static_url('js/configs/config-colors.js') }}"></script>
+    <script src="{{ static_url('js/components.js') }}"></script>
+
+    {% block scripts %}
+    <script type="text/javascript">
+      (function(document, window, $){
+        'use strict';
+
+        var Site = window.Site;
+        $(document).ready(function(){
+          Site.run();
+        });
+      })(document, window, jQuery);
+    </script>
+    {% endblock %}
+  </body>
+</html>

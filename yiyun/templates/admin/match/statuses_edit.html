@@ -1,0 +1,80 @@
+{% from "shared/macro.html" import render_field %}
+{% extends "base.html" %}
+
+{% set page_title = "发布赛事动态" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "match" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<style>
+.photo {
+  box-sizing: border-box;
+  padding: 1px;
+}
+.delete-photo {
+  background: red;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">发布动态</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('admin_matches') }}">赛事管理</a></li>
+      <li><a href="{{ reverse_url('admin_match_detail', match.id) }}">{{ match.title }}</a></li>
+      <li class="active">修改动态</li>
+    </ol>
+  </div>
+  <div class="page-content container-fluid">
+    <div class="panel">
+      <div class="panel-body">
+
+        {% from "shared/macro.html" import render_field with context %}
+
+        <form method="post" autocomplete="off" enctype="multipart/form-data" style="max-width: 400px">
+          {% for field in form  %}
+          <div class="form-group">
+            {{ render_field(field) }}
+          </div>
+          {% endfor %}
+
+          <div class="form-group">
+            <label class="control-label" for="content">新图片</label>
+            <input name="photos" class="form-control" type="file" accept="image/jpg,image/png,image/jpeg" multiple>
+            <span class="text-help">格式只能是 jpg, png, 但可以一次选择多张</span>
+          </div>
+
+          {% if status.photo_urls|length > 0 %}
+          <div class="form-group">
+            <label class="control-label" for="content">旧图片</label>
+            <input name="delete-photo-keys" type="hidden">
+            <div class="media old-photos">
+              <div class="media-body">
+                {% for url_info in status.photo_urls %}
+                <img src="{{ url_info['url'] }}" data-key="{{ status.photos[loop.index - 1] }}" class="mw140 mr20 mb20 photo">
+                {% endfor %}
+              </div>
+            </div>
+            <span class="text-help">点击图片标记为删除</span>
+          </div>
+          {% endif %}
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_url('js/app.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('js/pages/match_statuses_edit.js') }}"></script>
+{% endblock %}
+

@@ -1,0 +1,56 @@
+{% from "shared/macro.html" import render_field %}
+{% extends "base.html" %}
+
+{% set page_title = "发布赛事动态" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "match" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">发布动态</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('admin_matches') }}">赛事管理</a></li>
+      <li><a href="{{ reverse_url('admin_match_detail', match.id) }}">{{ match.title }}</a></li>
+      <li class="active">添加动态</li>
+    </ol>
+  </div>
+  <div class="page-content container-fluid">
+    <div class="panel">
+      <div class="panel-body">
+
+        {% from "shared/macro.html" import render_field with context %}
+
+        <form method="post" autocomplete="off" enctype="multipart/form-data" style="max-width: 350px">
+          {% for field in form  %}
+          <div class="form-group">
+            {{ render_field(field) }}
+          </div>
+          {% endfor %}
+
+          <div class="form-group">
+            <label class="control-label" for="content">照片</label>
+            <input name="photos" class="form-control" type="file" accept="image/jpg,image/png,image/jpeg" multiple>
+            <span class="text-help">格式只能是 jpg, png, 但可以一次选择多张</span>
+          </div>
+
+          <div class="form-group">
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_url('js/app.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('js/pages/activity.js') }}"></script>
+{% endblock %}
+

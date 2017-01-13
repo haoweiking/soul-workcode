@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% set page_title = "首页" %}
+{% set body_class = "" %}
+{% set site_menu = "home" %}
+
+{% block styles %}
+<style>
+    .rmb-icon {
+        float: left;
+        display: inline-block;
+        width: 100%;
+        font-size: 36px;
+        text-align: center;
+        color: #ff7e69;
+    }
+    .user-icon {
+        float: left;
+        display: inline-block;
+        width: 100%;
+        font-size: 36px;
+        text-align: center;
+        color: #00b7ac;
+    }
+    .user-icon2 {
+        color: #00ace5;
+    }
+    .counter-lg > .counter-number, .counter-lg .counter-number-group {
+        font-size: 28px;
+    }
+    .fa-volume-up {
+        color: #16c67d;
+    }
+    .widget {
+        border: 1px solid #ddd;
+    }
+    .left-widget {
+        border-right: 1px solid #ddd;
+        padding-top: 30px;
+        padding-bottom: 30px;
+    }
+    .right-widget {
+        padding-top: 30px;
+        padding-bottom: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page animsition" style="animation-duration: 800ms; opacity: 1;">
+    <div class="page-content container-fluid">
+        {% if current_team.type == 0 -%}
+        <div class="row" data-plugin="matchHeight" data-by-row="true">
+            <!-- First Row -->
+            <div class="col-lg-8 col-md-12">
+                <div class="widget">
+                    <div class="widget-content bg-white">
+                        <div class="row no-space">
+                            <div class="col-sm-6 left-widget">
+                                <i class="fa fa-jpy rmb-icon" aria-hidden="true"></i>
+                                <div
+                                        class="counter counter-lg text-center">
+                                    <span class="counter-number">{{ current_team.credit }}</span>
+                                    <div class="counter-label text-uppercase">
+                                        可提现金额（元）
+                                        <a href="{{ reverse_url('club_apply_cash') }}">提现</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 right-widget">
+                                <i class="fa fa-user user-icon"
+                                   aria-hidden="true"></i>
+                                <div
+                                        class="counter counter-lg text-center">
+                                    <span class="counter-number">{{ members_count }}</span>
+                                    <div class="counter-label text-uppercase">
+                                        新增会员数
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="widget">
+                    <div class="widget-content padding-30 bg-white clearfix">
+
+                        <i class="fa fa-user user-icon user-icon2"
+                           aria-hidden="true"></i>
+                        <div
+                                class="counter counter-lg text-center">
+                            <span class="counter-number">{{ members_count }}</span>
+                            <div class="counter-label text-uppercase">
+                                总会员数
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        {%- endif %}
+        <div class="panel">
+            <div class="panel-body">
+                <h4 class="text-center">
+                    <i class="fa fa-volume-up" aria-hidden="true"></i>
+                    系统公告
+                </h4>
+                <table class="table">
+                    <tbody>
+                    {% if announces and announces.pagination.total_count > 0 %}
+                    {% for announce in announces %}
+                    <tr>
+                        <td><a href="javascript:void(0)">{{ announce.title
+                            }}</a></td>
+                        <td style="width:120px">{{
+                            announce.created.strftime("%Y-%m-%d") }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="2" class="text-center">暂无公告</td>
+                    </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+                <nav>
+                    <ul class="pager text-center">
+                        <li class="disabled"><a href="javascript:void(0)"><span
+                                aria-hidden="true">←</span> 上一页</a></li>
+                        <li class="disabled"><a href="javascript:void(0)">下一页
+                            <span aria-hidden="true">→</span></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

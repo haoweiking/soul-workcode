@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% set page_title = "用户管理" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "user" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page" id="vue-app">
+  <div class="page-header">
+    <h1 class="page-title">用户管理</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li class="active">用户管理</li>
+    </ol>
+    <div class="page-header-actions">
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="panel">
+      <div class="panel-heading">
+        <form action="" class="pull-left" id="search-form">
+        <label class="form-inline">排序：
+          <select name="sort" class="form-control input-sm">
+            <option value="">默认</option>
+            <option value="1" {% if handler.get_argument('sort', '') == '1'%}selected="selected"{% endif %}>注册时间</option>
+            <option value="2" {% if handler.get_argument('sort', '') == '2'%}selected="selected"{% endif %}>用户名</option>
+          </select>
+        </label>
+        </form>
+
+        <form class="panel-search-form pull-right" role="search">
+          <div class="input-search">
+            <i class="input-search-icon wb-search" aria-hidden="true"></i>
+            <input type="text" class="form-control" name="kw" value="{{ handler.get_argument('kw', '') }}" placeholder="搜索">
+            <!-- <i class="icon wb-loop"></i> -->
+          </div>
+        </form>
+      </div>
+      <div class="panel-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>昵称</th>
+              <th>性别</th>
+              <th>手机号</th>
+              <th>城市</th>
+              <th>注册时间</th>
+              <th>状态</th>
+              <th class="text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr id="item-{{ user.id }}">
+              <td>
+                {{ user.name }}
+              </td>
+              <td>
+                {{ user.gender_name }}
+              </td>
+              <td>
+                {{ user.mobile }}
+              </td>
+              <td>
+                  {{ user.province }} {{ user.city }}
+              </td>
+              <td>
+                  {{ user.created }}
+              </td>
+              <td>{{ user.state_name }}</td>
+              <td></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-footer">
+        {{ render_pagination(users.pagination) }}
+      </div>
+    </div> <!-- panel-body end -->
+  </div>
+</div>
+{% endblock %}

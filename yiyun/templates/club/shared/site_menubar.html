@@ -1,0 +1,195 @@
+<div class="site-menubar">
+  <div class="site-menubar-body">
+    <div>
+      <div>
+        <ul class="site-menu margin-top-25">
+          <li class="site-menu-item {% if site_menu_active == 'home'%}open active{% endif %}">
+            <a href="{{ reverse_url('club_home') }}">
+              <i class="site-menu-icon wb-home" aria-hidden="true"></i>
+              <span class="site-menu-title">总览</span>
+            </a>
+          </li>
+          {% if current_team.type == 0 -%}
+          <li class="site-menu-item {% if site_menu_active == 'activity'%}open active{% endif %}">
+            <a href="{{ reverse_url('club_activity_list') }}">
+              <i class="site-menu-icon fa-calendar-o" aria-hidden="true"></i>
+              <span class="site-menu-title">活动管理</span>
+              <!-- <span class="site-menu-arrow"></span> -->
+            </a>
+          </li>
+          {%- endif %}
+          {% if current_team.type == 1 -%}
+          <li class="site-menu-item {% if site_menu_active == 'match' %}open active{% endif %}">
+            <a href="{{ reverse_url('club_matches') }}">
+              <i class="site-menu-icon fa-calendar-o" aria-hidden="true"></i>
+              <span class="site-menu-title">赛事管理</span>
+              <!-- <span class="site-menu-arrow"></span> -->
+            </a>
+          </li>
+          {%- endif %}
+          {% if current_team.type == 0 -%}
+          <li class="site-menu-item has-sub {% if site_menu_active == 'member'%}open active{% endif %}">
+            <a href="javascript:void(0)">
+              <i class="site-menu-icon wb-users" aria-hidden="true"></i>
+              <span class="site-menu-title">成员管理</span>
+              <span class="site-menu-arrow"></span>
+            </a>
+            <ul class="site-menu-sub">
+              <li class="site-menu-item {% if site_submenu_active == 'members' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('club_members') }}">
+                  <span class="site-menu-title">成员列表</span>
+                </a>
+              </li>
+              <li class="hide site-menu-item">
+                <a class="animsition-link" href="#">
+                  <span class="site-menu-title">充值记录</span>
+                </a>
+              </li>
+              <li class="site-menu-item hide">
+                <a class="animsition-link" href="#">
+                  <span class="site-menu-title">消费记录</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          {%- endif %}
+          {% if current_team.type == 1 %}
+          <li class="site-menu-item has-sub {% if site_menu_active == 'member'%}open active{% endif %}">
+            <a href="javascript:void(0)">
+              <i class="site-menu-icon wb-users" aria-hidden="true"></i>
+              <span class="site-menu-title">成员管理</span>
+              <span class="site-menu-arrow"></span>
+            </a>
+            <ul class="site-menu-sub">
+              <li class="site-menu-item {% if site_submenu_active == 'members' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('club_members_list') }}">
+                  <span class="site-menu-title">成员列表</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          {% endif %}
+          <li class="hide site-menu-item has-sub {% if site_menu_active == 'shop'%}open active{% endif %}">
+            <a href="javascript:void(0)">
+              <i class="site-menu-icon fa-shopping-cart" aria-hidden="true"></i>
+              <span class="site-menu-title">微店</span>
+              <span class="site-menu-arrow"></span>
+            </a>
+            <ul class="site-menu-sub">
+              <li class="site-menu-item {% if site_submenu_active == 'product' %}active{% endif %}">
+                <a class="animsition-link" href="#">
+                  <span class="site-menu-title">商品</span>
+                </a>
+              </li>
+              <li class="site-menu-item {% if site_submenu_active == 'order' %}active{% endif %}">
+                <a class="animsition-link" href="#">
+                  <span class="site-menu-title">订单</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <li class="site-menu-item has-sub {% if site_menu_active == 'news' %}open active{% endif %}">
+            <a href="javascript:void(0)">
+              <i class="site-menu-icon fa-newspaper-o" aria-hidden="true"></i>
+              <span class="site-menu-title">资讯文章</span>
+              <span class="site-menu-arrow"></span>
+            </a>
+            <ul class="site-menu-sub">
+              <li class="site-menu-item {% if site_submenu_active == 'create' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('club_article_create') }}">
+                  <span class="site-menu-title">新建文章</span>
+                </a>
+              </li>
+              <li class="site-menu-item {% if site_submenu_active == 'list' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('club_articles_list') }}">
+                  <span class="site-menu-title">文章库</span>
+                </a>
+              </li>
+              <li class="site-menu-item {% if site_submenu_active == 'categories_list' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('club_article_categories_list') }}">
+                  <span class="site-menu-title">文章分类</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="site-menu-item has-sub {% if site_menu_active == 'follower'%}open active{% endif %}">
+            <a href="javascript:void(0)">
+              <i class="site-menu-icon wb-user" aria-hidden="true"></i>
+              <span class="site-menu-title">粉丝</span>
+              <span class="site-menu-arrow"></span>
+            </a>
+            <ul class="site-menu-sub">
+              <li class="site-menu-item {% if site_submenu_active == 'list' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('club_followers') }}">
+                  <span class="site-menu-title">列表</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="site-menu-item has-sub {% if site_menu_active == 'report'%}open active{% endif %}">
+            <a href="javascript:void(0)">
+              <i class="site-menu-icon wb-pie-chart" aria-hidden="true"></i>
+              <span class="site-menu-title">财务</span>
+              <span class="site-menu-arrow"></span>
+            </a>
+            <ul class="site-menu-sub">
+              <li class="site-menu-item {% if site_submenu_active == 'orders' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('club_orders') }}">
+                  <span class="site-menu-title">订单</span>
+                </a>
+              </li>
+<!--               <li class="site-menu-item {% if site_submenu_active == 'activity' %}active{% endif %}">
+                <a class="animsition-link" href="#">
+                  <span class="site-menu-title">活动统计</span>
+                </a>
+              </li> -->
+              <li class="site-menu-item {% if site_submenu_active == 'cash-log' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('club_cash_logs') }}">
+                  <span class="site-menu-title">提现</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="hide site-menu-item {% if site_menu_active == 'message'%}open active{% endif %}">
+            <a href="{{ reverse_url('club_message') }}">
+              <i class="site-menu-icon wb-chat" aria-hidden="true"></i>
+              <span class="site-menu-title">消息</span>
+              <div class="site-menu-badge">
+                <span class="badge badge-success">3</span>
+              </div>
+            </a>
+          </li>
+          <li class="site-menu-item has-sub {% if site_menu_active == 'settings' %}open active{% endif %}">
+            <a class="animsition-link" href="#">
+              <i class="site-menu-icon wb-settings" aria-hidden="true"></i>
+              <span class="site-menu-title">设置</span>
+              <span class="site-menu-arrow"></span>
+            </a>
+            <ul class="site-menu-sub">
+              {%- if current_team.type == 0 -%}
+              <li class="site-menu-item {% if site_submenu_active == 'mini_site' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('club_settings_mini_site') }}">
+                  <span class="site-menu-title">微门户</span>
+                </a>
+              </li>
+              {%- endif -%}
+              {%- if current_team.type == 0 -%}
+              <li class="site-menu-item {% if site_submenu_active == 'weixin' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('club_settings_weixin') }}">
+                  <span class="site-menu-title">微信公众号</span>
+                </a>
+              </li>
+              {%- endif %}
+              <li class="site-menu-item {% if site_submenu_active == 'settings' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('club_settings_basic') }}">
+                  <span class="site-menu-title">资料设置</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

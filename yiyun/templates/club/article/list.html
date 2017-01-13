@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% set page_title = "修改文章" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "news" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<style>
+    .fa-file-text {
+        color: #18c374;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page" id="vue-app">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa fa-file-text" aria-hidden="true"></i>
+            文章列表
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+            <li><a href="#">文章列表</a></li>
+        </ol>
+    </div>
+    <div class="page-content container-fluid">
+        <div class="panel">
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="text-left">标题</th>
+                        <th>分类</th>
+                        <th>最后修改</th>
+                        <th>创建时间</th>
+                        <th>阅读量</th>
+                        <th>状态</th>
+                        <th>审核</th>
+                        <th>推荐</th>
+                        <th class="text-right">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for article in articles %}
+                    <tr>
+                        <td>
+                            {{ article["title"] }}
+                        </td>
+                        <td>{{ article["category"]["name"] or "默认" }}</td>
+                        <td>{{ article["updated"] }}</td>
+                        <td>{{ article["created"] }}</td>
+                        <td>{{ article["views_count"] }}</td>
+                        <td>
+                            <div class="btn-group text-right">
+                                {% if article['state'] == 1 %}
+                                <button type="button"
+                                        class="btn btn-default br2 btn-xs fs12 dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        aria-expanded="false">
+                                    草稿
+                                    <span class="caret ml5"></span>
+                                </button>
+                                {% else %}
+                                <button type="button"
+                                        class="btn btn-success br2 btn-xs fs12 dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        aria-expanded="false">
+                                    发布
+                                    <span class="caret ml5"></span>
+                                </button>
+                                {% endif %}
+
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a href="javascript:void(0);"
+                                           class="btn-action"
+                                           data-url="{{ reverse_url('club_articles_list_action') }}"
+                                           data-action="set_draft"
+                                           data-id="{{ article['id'] }}"
+                                           data-success="设置成功"
+                                           data-fail="设置失败">
+                                            草稿
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0);"
+                                           class="btn-action"
+                                           data-url="{{ reverse_url('club_articles_list_action') }}"
+                                           data-action="set_published"
+                                           data-id="{{ article['id'] }}"
+                                           data-success="设置成功"
+                                           data-fail="设置失败">
+                                            发布
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td>
+                            <label class="">
+                                <input type="checkbox" class="action-checkbox"
+                                       data-url="{{ reverse_url('club_articles_list_action') }}"
+                                       data-state="approved"
+                                       data-id="{{ article['id'] }}"
+                                       data-success_msg="设置成功"
+                                       data-fail_msg="设置失败"
+                                       name="approved" {% if article["approved"]
+                                %} checked {% endif %}>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="">
+                                <input type="checkbox" class="action-checkbox"
+                                       data-url="{{ reverse_url('club_articles_list_action') }}"
+                                       data-state="recommend"
+                                       data-id="{{ article['id'] }}"
+                                       data-success_msg="设置成功"
+                                       data-fail_msg="设置失败"
+                                       name="recommend" {% if article["recommend"]
+                                %} checked {% endif %}>
+                            </label>
+                        </td>
+                        <td class="text-right">
+                            <div class="btn-group text-right">
+                                <button type="button"
+                                        class="btn btn-default br2 btn-xs fs12 dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        aria-expanded="false">
+                                    <span class="caret ml5"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a href="{{ reverse_url('club_article_edit', article['id']) }}">
+                                            编辑
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0);"
+                                           class="btn-action"
+                                           data-url="{{ reverse_url('club_articles_list_action') }}"
+                                           data-action="delete"
+                                           data-id="{{ article['id'] }}"
+                                           data-success="删除成功"
+                                           data-fail="删除失败">
+                                            删除
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="panel-footer">
+            {{ render_pagination(pagination) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(function () {
+
+        $(".btn-action").click(function () {
+            var id = $(this).data("id"),
+                    action_url = $(this).data("url"),
+                    confirm_msg = $(this).data("confirm"),
+                    success_msg = $(this).data("success"),
+                    action = $(this).data("action");
+
+            if (!confirm_msg) {
+                confirm_msg = "确定？"
+            }
+
+            alertify.okBtn("确定")
+                    .cancelBtn("放弃")
+                    .confirm(confirm_msg, function () {
+                        $.post(action_url, {
+                            "action": action,
+                            "id": id
+                        }, function (data) {
+                            if ("status" in data && data['status'] == "ok") {
+                                toastr.success(success_msg, "", {
+                                    "positionClass": "toast-top-center",
+                                    "timeOut": 1000
+                                });
+
+                                setTimeout(function () {
+                                    location.reload();
+                                }, 1100);
+                            }
+                        }, "json").fail(function (e) {
+                            console.log(e);
+                        });
+                    }, function () {
+                        // user clicked "cancel"
+                    });
+        });
+
+        // checkbox
+        $('.action-checkbox').on('click', function (e) {
+            var $checkbox = $(e.currentTarget)
+            var isCheck = $checkbox.is(':checked')
+            var url = $checkbox.data('url')
+            var state = $checkbox.data('state')
+            var id = $checkbox.data('id')
+            var successMsg = $checkbox.data('success_msg')
+            var failMsg = $checkbox.data('fail_msg')
+
+            if (isCheck) {
+                var action = 'set_' + state
+            } else {
+                var action = 'unset_' + state
+            }
+
+            $.post(url, {"action": action, "id": id}, function (data) {
+                if ("status" in data && data['status'] == "ok") {
+                    toastr.success(successMsg, "", {
+                        "positionClass": "toast-top-center",
+                        "timeOut": 1000
+                    });
+                } else {
+                    toastr.warning(failMsg)
+                }
+            }, "json").fail(function (e) {
+                console.log(e);
+            });
+        })
+
+    });
+</script>
+{% endblock %}

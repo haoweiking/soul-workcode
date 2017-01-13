@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% set page_title = "账户信息" %}
+{% set body_class = "page-account-profile" %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">机构基本资料</h1>
+  </div>
+  <div class="page-content container-fluid">
+    <div class="panel">
+    <div class="panel-body">
+      <div class="nav-tabs-horizontal">
+        <ul class="nav nav-tabs nav-tabs-line">
+          <li class="{% if tab_active == 'basic' %}active{% endif %}"><a href="{{ reverse_url('club_info_basic') }}">基本资料</a></li>
+          <li class="{% if tab_active == 'finance' %}active{% endif %}"><a href="{{ reverse_url('club_info_finance') }}">财务信息</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active">
+              <div class="padding-top-25 col-sm-4">
+                  {% block content %}{% endblock %}
+              </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

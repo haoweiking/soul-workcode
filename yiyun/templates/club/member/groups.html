@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% set page_title = "成员管理" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "member" %}
+{% set site_submenu_active = "members" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page" id="vue-app">
+  <div class="page-header">
+    <h1 class="page-title">成员管理</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('club_members') }}">成员管理</i></a></li>
+      <li class="active">分组管理</li>
+    </ol>
+    <div class="page-header-actions">
+      <a href="####" class="btn btn-primary" @click="add">添加分组</a>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="panel">
+      <div class="panel-heading">
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>分组名称</th>
+              <th>成员数量</th>
+              <th class="text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for group in groups %}
+            <tr id="item-{{ group.id }}">
+              <td>
+                <a href="#">{{ group.name }}</a>
+              </td>
+              <td>
+                 {{ group.members_count }}
+              </td>
+              <td class="text-center">
+                  <a href="###" @click="modify({{ group.id }}, '{{ group.name }}')">修改</a>
+                  <a href="###" @click="remove({{ group.id }})">删除</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <div class="panel-footer">
+       </div>
+    </div> <!-- panel-body end -->
+  </div>
+
+{% raw %}
+<!-- Modal -->
+<div class="modal fade" id="group-modal" aria-hidden="false" aria-labelledby="" role="dialog" tabindex="-1">
+<div class="modal-dialog">
+    <form class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">×</span>
+        </button>
+        <h4 class="modal-title">{{ action_title }}</h4>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-lg-12 form-group" v-bind:class="{'has-error': error}">
+                <input type="text" class="form-control" v-model="group_name" placeholder="分组名称">
+                <div class="help-block" v-show="error">{{ error }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" @click="save" type="button">{{ action_name }}</button>
+    </div>
+    </form>
+</div>
+</div>
+<!-- End Modal -->
+{% endraw %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" charset="utf-8">
+    (function(){
+       
+        alertify.theme("bootstrap");
+        var app = new Vue({
+            el: "#vue-app",
+            data: function() {
+                return {
+                    action_title: "",
+                    action_name: "",
+                    group_id: 0,
+                    group_name: "",
+                    groups: [],
+                    error: ""
+                }
+            },
+            ready: function(){
+                var self = this
+                $('#group-modal').on('hidden.bs.modal', function (e) {
+                    self.error = ""
+                })
+            },
+            methods: {
+                add: function(){
+                    this.action_title = "添加分组"
+                    this.action_name = "保存"
+
+                    this.group_id = 0
+                    this.group_name = ""
+                    $('#group-modal').modal()
+                },
+                modify: function(group_id, group_name) {
+                    this.action_title = "修改分组"
+                    this.action_name = "保存"
+
+                    this.group_id = group_id
+                    this.group_name = group_name
+                    $("#group-modal").modal()
+                },
+                save: function(){
+                    var self = this
+
+                    if(this.group_name.length == 0)
+                        return
+
+                    $.post("{{ reverse_url('club_member_groups')}}", {group_id: this.group_id, group_name: this.group_name}, function(data){
+                        $('#group-modal').modal('hide')
+                        location.reload()
+                    }, "json").fail(function(e){
+                        console.log(e.responseJSON)
+                        var error = e.responseJSON
+                        self.error = error['error']
+                    })
+                },
+                remove: function(group_id) {
+                    alertify.okBtn("确认")
+                        .cancelBtn("取消")
+                        .confirm("确认删除此分组？", function () {
+                            $.ajax({
+                            url: "{{ reverse_url('club_member_groups')}}?group_id="+group_id,
+                            method: "delete",
+                            dataType: "json"
+                            }).done(function() {
+                                location.reload()
+                            }).fail(function(e){
+                                console.log(e.responseJSON)
+                                var error = e.responseJSON
+                                alertify.okBtn("确认").alert(error['error']);
+                                //alert(error['error'])
+                            });
+                    }, function() {
+                    });
+                }
+            }
+        })
+    })();
+</script>
+{% endblock %}

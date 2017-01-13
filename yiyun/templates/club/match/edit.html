@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% set page_title = "编辑比赛" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "match" %}
+{% set site_submenu_active = "create" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+<style>
+    .nav-tabs > li {
+        margin-right: 20px;
+    }
+    .nav-tabs > li > a {
+        padding: 6px 3px;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+    }
+    .fa-futbol-o {
+        color: #a788d2;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page" id="vue-app">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa fa-futbol-o" aria-hidden="true"></i>
+            编辑比赛
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+            <li><a href="{{ reverse_url('club_matches') }}">赛事管理</a></li>
+            <li><a href="{{ reverse_url('club_match_detail', match.id) }}">{{
+                match.title }}</a></li>
+            <li class="active">编辑比赛</li>
+        </ol>
+        <div class="page-header-actions">
+            <!-- <button type="submit" class="btn btn-primary">保存</button> -->
+        </div>
+    </div>
+    <div class="page-content container-fluid">
+        <div class="panel panel-bordered">
+            <div class="panel-body">
+                {% include "match/form.html" with context %}
+            </div>
+            <div class="panel-footer">
+                <p>
+                    <button type="submit" @click="submit"
+                            class="btn btn-primary">保存
+                    </button>
+                </p>
+                <p class="big-text">* 请填写所有标签页内容再保存</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% include "match/form_scripts.html" with context %}
+{% endblock %}

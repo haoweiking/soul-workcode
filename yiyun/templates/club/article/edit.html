@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% set page_title = "修改文章" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "news" %}
+{% set site_submenu_active = "create" %}
+
+<style>
+    .fa-file-text {
+        color: #18c374;
+    }
+</style>
+
+{% block body %}
+<div class="page" id="vue-app">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa fa-file-text" aria-hidden="true"></i>
+            修改文章
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+            <li><a href="{{ reverse_url('club_matches') }}">文章列表</a></li>
+            <li class="active">修改文章</li>
+        </ol>
+    </div>
+    <div class="page-content container-fluid">
+        <div class="panel">
+            <div class="panel-body">
+                {% from "shared/macro.html" import render_form %}
+                <form method="post" action="#" id="article-create-form"
+                      enctype="multipart/form-data">
+                    {{ render_form(form) }}
+                    <button type="submit" id="btn-submit"
+                            class="btn btn-primary btn-lg">保存
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+

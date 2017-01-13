@@ -1,0 +1,52 @@
+{% extends "blank.html" %}
+
+{% set page_title = "邮箱验证" %}
+{% set body_class = "page-register-v3 layout-full" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/register-v3.css') }}">
+{% endblock %}
+
+{% block body %}
+    <!-- Page -->
+    <div class="page animsition vertical-align text-center" data-animsition-in="fade-in"
+         data-animsition-out="fade-out">
+        <div class="page-content vertical-align-middle">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="brand">
+                        <img class="brand-img" src="{{ static_url('img/logo.png') }}" style="width:80px" alt="...">
+                        <h2 class="brand-text font-size-18">派队管家</h2>
+                    </div>
+                    <div>
+                        <p class="lead text-muted" style="display: block;padding-top:25px; padding-bottom:25px;">
+                            {% if success %}
+                                邮箱验证成功，点此前往<a href="{{ reverse_url('club_home') }}">主页</a>
+                            {% else %}
+                                邮箱验证失败，请<a href="{{ reverse_url('club_wait_email_verify') }}">重新验证</a>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <footer class="page-copyright page-copyright-inverse">
+                <p>© 2016 派队管家</p>
+            </footer>
+        </div>
+    </div>
+    <!-- End Page -->
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    (function(document, window, $){
+        'use strict';
+
+        var Site = window.Site;
+        $(document).ready(function(){
+            Site.run();
+        })
+
+    })(document, window, jQuery);
+</script>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% set page_title = "报名表" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "activity" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">报名表</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('club_activity_list') }}">活动管理</a></li>
+      <li class="active">报名表</li>
+    </ol>
+    <div class="page-header-actions">
+    </div>
+  </div>
+  <div class="page-content"> 
+    <div class="panel">
+      <div class="panel-heading">
+        <div >
+          活动名称：
+          <span class="form-control-static"><a href="#">{{ activity.title }}</a></span>
+        </div>
+        <div>
+          报名人数：{{ activity.members_count }} 人，单价：{{ decimalval(activity.price) }} 元，总金额：{{ activity.total_amount }} 元
+        </div>
+      </div>
+      <div class="panel-body">
+        <table class="table">
+          <thead>
+            <tr>
+              {% if activity.need_nickname %}
+              <th>昵称</th>
+              {% endif %}
+              {% if activity.need_name %}
+              <th>姓名</th>
+              {% endif %}
+              {% if activity.need_mobile %}
+              <th>手机</th>
+              {% endif %}
+              {% if activity.need_gender %}
+              <th>性别</th>
+              {% endif %}
+              {% if activity.need_identification %}
+              <th>身份证号</th>
+              {% endif %}
+              {% if activity.need_emergency_contact %}
+              <th>紧急联系电话</th>
+              {% endif %}
+              {% if activity.need_ext1_name %}
+              <th>{{ activity.need_ext1_name }}</th>
+              {% endif %}
+              {% if activity.need_ext2_name %}
+              <th>{{ activity.need_ext2_name }}</th>
+              {% endif %}
+              {% if activity.need_ext3_name %}
+              <th>{{ activity.need_ext3_name }}</th>
+              {% endif %}
+              <th>报名人数</th>
+              <th>报名时间</th>
+              <th>支付状态</th>
+              <th>支付方法</th>
+              <th class="text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for member in members %}
+            <tr>
+              {% if activity.need_nickname %}
+              <td>{{ member.nickname }}</td>
+              {% endif %}
+              {% if activity.need_name %}
+              <td>{{ member.realname }}</td>
+              {% endif %}
+              {% if activity.need_mobile %}
+              <td>{{ member.mobile }}</td>
+              {% endif %}
+              {% if activity.need_gender %}
+              <td>{{ member.gender_label }}</td>
+              {% endif %}
+              {% if activity.need_identification %}
+              <td>{{ member.identification }}</td>
+              {% endif %}
+              {% if activity.need_emergency_contact %}
+              <td>{{ member.emergency_contact }}</td>
+              {% endif %}
+              {% if activity.need_ext1_name %}
+              <td>{{ member.get_ext_info("info_ext1", activity.need_ext1_type)}}</td>
+              {% endif %}
+              {% if activity.need_ext2_name %}
+              <td>{{ member.get_ext_info("info_ext2", activity.need_ext2_type)}}</td>
+              {% endif %}
+              {% if activity.need_ext3_name %}
+              <td>{{ member.get_ext_info("info_ext2", activity.need_ext2_type)}}</td>
+              {% endif %}
+              <td>{{ member.users_count }}</td>
+              <td>{{ member.created }}</td>
+              <td>{{ member.order.state_name or "-" }}</td>
+              <td>{{ member.order.payment_method_name or '-' }}</td>
+              <td>
+                <a href="#"></a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-footer">
+        {{ render_pagination(members.pagination) }}
+      </div>
+    </div> <!-- panel-body end -->
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_url('js/app.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('js/pages/activity.js') }}"></script>
+{% endblock %}

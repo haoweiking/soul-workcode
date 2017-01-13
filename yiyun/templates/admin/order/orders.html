@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% set page_title = "订单管理" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "report" %}
+{% set site_submenu_active = "order" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page" id="vue-app">
+  <div class="page-header">
+    <h1 class="page-title">订单管理</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li class="active">订单管理</li>
+    </ol>
+    <div class="page-header-actions">
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="panel">
+      <div class="panel-heading">
+        <form action="" class="pull-left" id="search-form">
+        <label class="form-inline">状态：
+          <select name="state" class="form-control input-sm">
+            <option value="100">全部</option>
+            {% for state, state_name in states.items() %}
+            <option value="{{ state.value }}" {% if handler.get_argument('state', '') == "%s" % state.value %}selected="selected"{% endif %}>{{ state_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="form-inline">时间：
+            <input type="text" name="start" class="form-control input-sm date-widget" value="{{ handler.get_argument('start', '') }}"> 至
+            <input type="text" name="end" class="form-control input-sm date-widget" value="{{ handler.get_argument('end', '') }}">
+        </label>
+        <button class="btn btn-primary btn-sm">查询</button>
+        </form>
+        <form class="panel-search-form pull-right" role="search">
+          <div class="input-search">
+            <i class="input-search-icon wb-search" aria-hidden="true"></i>
+            <input type="text" class="form-control" name="kw" value="{{ handler.get_argument('kw', '') }}" placeholder="搜索">
+            <!-- <i class="icon wb-loop"></i> -->
+          </div>
+        </form>
+      </div>
+      <div class="panel-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>订单编号</th>
+              <th>标题</th>
+              <th>类型</th>
+              <th>俱乐部</th>
+              <th>用户</th>
+              <th>订单金额</th>
+              <th>支付方式</th>
+              <th>状态</th>
+              <th>创建时间</th>
+              <th>支付时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+              <tr>
+                <td>{{ order.order_no }}</td>
+                <td>{{ order.title }}</td>
+                <td>{{ order.order_type_name }}</td>
+                <td>{{ order.team.name }}</td>
+                <td>
+                    <a href="#">{{ order.user.name }}</a> <br> 
+                    {{ order.user.mobile }}
+                </td>
+                <td>{{ order.total_fee }}</td>
+                <td>{{ order.payment_method_name }}</td>
+                <td>{{ order.state_name }}</td>
+                <td>{{ order.created }}</td>
+                <td>{{ order.paid or "-" }}</td>
+                <td>
+                  <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" id="order-actions-{{order.id}}" data-toggle="dropdown" aria-expanded="false"><i class="icon wb-menu" ></i></a>
+                    <ul class="dropdown-menu dropdown-menu-primary" aria-labelledby="order-actions-{{order.id}}" role="menu">
+                      {% if order.is_refund_failed() %}
+                      <li role="presentation"><a href="#" role="menuitem" @click="refund({{ order.id }})">重新退款</a></li>
+                      {% endif %}
+                      <li role="presentation">
+                          <a href="#">取消</a>
+                      </li>
+                    </ul>
+                  </div> 
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-footer">
+        {{ render_pagination(orders.pagination) }}
+      </div>
+    </div> <!-- panel-body end -->
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+(function(){
+    alertify.theme("bootstrap");
+    var app = new Vue({
+        el: "#vue-app",
+        data: function() {
+            return {
+                error: ""
+            }
+        },
+        created: function(){
+        },
+        ready: function(){
+            var Site = window.Site;
+            Site.run()
+            
+            $("#search-form select").change(function(){
+                $(this).parents("form").submit();
+            });
+        },
+        methods: {
+            refund: function(order_id){
+                var self = this
+                
+                $.post("{{ reverse_url('admin_orders')}}", {action: "refund", order_id: order_id},
+                    function(data){
+                        location.reload()
+                    }, "json").fail(function(e){
+                        console.log(e.responseJSON)
+                        var error = e.responseJSON
+                        self.error = error['error']
+                    })
+            }
+        }
+    })
+})();
+</script>
+{% endblock %}

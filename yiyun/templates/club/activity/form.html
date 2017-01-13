@@ -1,0 +1,139 @@
+{% from "shared/macro.html" import render_field with context %}
+<form id="activity-form" method="post" autocomplete="off" enctype="multipart/form-data" style="max-width: 610px">
+  <div class="form-group ">
+    {{ render_field(form.title) }}
+  </div>
+  <div class="form-group ">
+    {{ render_field(form.cover) }}
+  </div>
+    
+  <div class="form-group ">
+    {{ render_field(form.sport) }}
+  </div>
+
+  <div class="row">
+    <div class="form-group col-sm-6">
+      {{ render_field(form.province) }}
+    </div>
+    <div class="form-group col-sm-6">
+      {{ render_field(form.city) }}
+    </div>
+  </div>
+  
+  <div class="form-group ">
+     {{ form.address.label(class="control-label") }}
+     <div class="input-group">
+        {{ form.address(class="form-control")|safe }}
+        <span class="input-group-btn">
+            <button type="button" class="btn btn-default"><i class="icon wb-map" aria-hidden="true"></i></button>
+        </span>
+    </div>
+    <div id="map-container" class="map-container"></div>
+  </div>
+  
+  <div class="row">
+    <div class="form-group col-sm-6">
+    {{ render_field(form.start_time) }}
+    </div>
+    <div class="form-group col-sm-6">
+    {{ render_field(form.end_time) }}
+    </div>
+  </div> 
+  
+  <div class="row">
+    <div class="form-group col-sm-6">
+      {{ render_field(form.join_end, "form-control") }}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="form-group col-sm-6">
+        {{ render_field(form.repeat_type) }}
+    </div>
+    <div class="form-group col-sm-6">
+    {{ render_field(form.repeat_end, "form-control date-widget") }}
+    </div>
+    
+  </div>
+
+  <div class="form-group ">
+    {{ render_field(form.description, "textarea form-control") }}
+  </div>
+
+  <div class="row">
+    <div class="form-group col-sm-4">
+      {{ render_field(form.max_members) }}
+    </div>
+    <div class="form-group col-sm-4">
+      {{ render_field(form.allow_agents) }}
+    </div>
+  </div>
+    
+  <div class="row">
+    <div class="form-group col-sm-4">
+      {{ render_field(form.price) }} 
+    </div>
+    <div class="form-group col-sm-4">
+      {{ render_field(form.vip_price) }} 
+    </div>
+    <div class="form-group col-sm-4">
+      {{ render_field(form.payment_type) }} 
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{ render_field(form.allow_free_times) }} 
+  </div>
+
+  <div class="row">
+    <div class="form-group col-sm-6">
+      {{ render_field(form.visible) }}
+    </div>
+    <div class="form-group col-sm-6">
+      {{ render_field(form.allow_groups) }}
+    </div>
+  </div>
+    
+  <div class="form-group"> 
+    {{ render_field(form.leader) }}
+  </div>
+
+  <div class="form-group ">
+    {{ render_field(form.need_fields) }}
+  </div>
+
+  <fieldset>
+    <legend>报名扩展信息</legend>
+    <div class="row">
+      <div class="form-group col-sm-6">
+        {{ render_field(form.need_ext1_name) }}
+      </div>
+      <div class="form-group col-sm-6">
+        {{ render_field(form.need_ext1_type) }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-sm-6">
+        {{ render_field(form.need_ext2_name) }}
+      </div>
+      <div class="form-group col-sm-6">
+        {{ render_field(form.need_ext2_type) }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-sm-6">
+        {{ render_field(form.need_ext3_name) }}
+      </div>
+      <div class="form-group col-sm-6">
+        {{ render_field(form.need_ext3_type) }}
+      </div>
+    </div>
+  </fieldset>
+
+  <div class="form-group">
+      {{ form.lng()|safe }}
+      {{ form.lat()|safe }}
+      {{ form.formatted_address()|safe }}
+    <button type="submit" class="btn btn-primary">保存</button>
+  </div>
+</form>

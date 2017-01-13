@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% set page_title = "粉丝管理" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "follower" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+<style>
+    .heart-icon {
+        color: #ff7f6b;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa fa-heart heart-icon" aria-hidden="true"></i> 粉丝管理
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+            <li class="active">粉丝管理</li>
+        </ol>
+    </div>
+    <div class="page-content">
+        <div class="panel">
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>头像</th>
+                        <th>昵称</th>
+                        <th>性别</th>
+                        <th>电话</th>
+                        <th>关注时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for follower in followers %}
+                    <tr>
+                        <td>
+                            <img src="{{ follower['user_info'].avatar_url }}@!small-head"
+                                 style="width: 50px;" alt="head">
+                        </td>
+                        <td>
+                            {{ follower['user_info'].nickName }}
+                        </td>
+                        <td>
+                            {{ follower['user_info'].gender_text }}
+                        </td>
+                        <td>
+                            {{ follower['user_info'].mobile }}
+                        </td>
+                        <td>{{ follower.created }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-footer">
+                {{ render_pagination(pagination) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+

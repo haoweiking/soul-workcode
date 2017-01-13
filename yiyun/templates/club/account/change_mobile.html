@@ -1,0 +1,107 @@
+{% extends "account/layout.html" %}
+
+{% set tab_active = "change_mobile" %}
+
+{% block styles %}
+<style>
+    .input-group-addon {
+        background: #ecf7fc;
+    }
+    .gear-icon {
+        color: #00ace5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% from "shared/macro.html" import render_field,render_field_error with context %}
+<form method="post" autocomplete="off">
+    <div class="form-group">
+        <label class="">原手机号码</label>
+        <p class="form-control-static">{{ current_user.mobile }}</p>
+    </div>
+    <div class="form-group">
+        {{ render_field(form.password) }}
+    </div>
+    <div id="mobile-group"
+         class="form-group {% if form.mobile.errors %}has-error{% endif %}">
+        <label class="">新手机号码</label>
+        <div class="input-group">
+            <span class="input-group-addon">+86</span>
+            {{ form.mobile(class="form-control", placeholder="手机号")|safe }}
+        </div>
+        {{ render_field_error(form.mobile) }}
+        <span id="mobile-error" class="help-block hide"></span>
+    </div>
+    <div class="form-group {% if form.verify_code.errors %}has-error{% endif %}">
+        <label class="">短信验证码</label>
+        <div class="input-group">
+            <input type="text" class="form-control" name="verify_code"
+                   placeholder="短信验证码">
+            <span class="input-group-btn">
+      <button type="button" id="request-verify-code" tabindex="-1"
+              class="btn btn-default btn-outline">发送短信验证码</button>
+    </span>
+        </div>
+        {{ render_field_error(form.verify_code) }}
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">保存</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    (function (document, window, $) {
+        'use strict';
+
+        var Site = window.Site;
+        $(document).ready(function () {
+            Site.run();
+
+            $("#request-verify-code").click(function () {
+                var mobile = $("#mobile").val(),
+                        $btn = $(this);
+
+                if (mobile.length < 11) {
+                    $("#mobile-group").addClass("has-error");
+                    $("#mobile-error").text("请填写手机号").removeClass("hide");
+                    return;
+                }
+                $("#mobile-group").removeClass("has-error");
+                $("#mobile-error").addClass("hide");
+
+                var normalText = $btn.text(),
+                        loadingText = "秒后可重发";
+
+                alertify.theme("bootstrap");
+                $.post("{{ reverse_url('club_request_verify_code') }}",
+                        {"mobile": mobile, "action": "update_mobile"},
+                        function (data) {
+
+                            $("input[name='verify_code']").focus();
+
+                            $btn.prop("disabled", true);
+                            var i = 30;
+                            $btn.text('(' + i + ')' + loadingText).css('opacity', '.6');
+                            var timeout = setInterval(function () {
+                                $btn.text('(' + (--i) + ')' + loadingText);
+                                if (i === 0) {
+                                    clearInterval(timeout);
+                                    $btn.prop("disabled", false);
+                                    $btn.text("重新发送").css('opacity', '1');
+                                }
+                            }, 1000);
+
+                        }, "json").fail(function (e) {
+                    var data = $.parseJSON(e.responseText);
+                    $("#mobile-group").addClass("has-error");
+                    $("#mobile-error").text(data.error).removeClass("hide");
+                });
+            });
+        });
+    })(document, window, jQuery);
+</script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% set page_title = "修改活动" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "activity" %}
+{% set site_submenu_active = "new" %}
+
+{% block body %}
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">修改活动</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('club_activity_list') }}">活动管理</a></li>
+      <li class="active">修改活动</li>
+    </ol>
+  </div>
+  <div class="page-content container-fluid">
+    <div class="panel">
+      <div class="panel-body">
+        {% include "activity/form.html" with context %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% include "activity/form_scripts.html" with context %} 
+{% endblock %}

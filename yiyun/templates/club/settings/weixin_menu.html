@@ -1,0 +1,50 @@
+{% extends "settings/weixin_base.html" %}
+
+{% set tab_active = "menu" %}
+
+{% block content %}
+{% if not weixin.can_create_menu() %}
+<p>你的公众号不支持自定义菜单，只有认证后的订阅号和服务号可以自定义菜单</p>
+<p>如果你的公众号已通过认证请 <a href="{{ reverse_url('club_wxmp_bind') }}">重新授权</a> </p>
+{% else %}
+<button type="button" id="update-menu" data-action="update" data-loading-text="正在处理" class="btn btn-success btn-lg ladda-button">更新菜单</button>
+<button type="button" id="drop-menu" data-action="drop" data-loading-text="正在处理" class="btn btn-default btn-lg ladda-button">删除菜单</button>
+
+<p class="margin-top-15">
+说明：
+<ul>
+    <li>更新菜单会同步“管运动”菜单到你的公众号并覆盖现有自定义菜单</li>
+    <li>更新和删除菜单需要你已授权“管运动”修改你的公众号菜单</li>
+</ul>
+</p>
+{% endif %}
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+(function(){
+    $(document).ready(function(){
+        $("#update-menu,#drop-menu").click(function(){
+            var action = $(this).data("action"),
+                $btn = $(this)
+                
+            if (action == "drop" && !confirm("确认要删除自定义菜单么？")) {
+                return false
+            }
+            
+            var action_name = action == "update" ? "更新菜单" : "删除菜单"; 
+                
+            $btn.button('loading')
+            $.post("{{ reverse_url('club_settings_weixin_menu') }}", {action: action}, function(data){
+                $btn.button('reset')
+                alert(action_name+"成功")
+            }, "json").fail(function(){
+                $btn.button('reset')
+                alert(action_name+"失败")
+            })
+        });
+    });
+})();
+</script>
+{% endblock %}

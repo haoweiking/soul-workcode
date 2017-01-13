@@ -1,0 +1,286 @@
+{% extends "blank.html" %}
+{% from "shared/macro.html" import render_field_error %}
+
+{% set page_title = "注册" %}
+{% set body_class = "page-register-v3 layout-full" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/register-v3.css') }}">
+{% endblock %}
+
+{% block body %}
+<!-- Page -->
+<div class="page animsition vertical-align text-center"
+     data-animsition-in="fade-in"
+     data-animsition-out="fade-out">
+    <div class="page-content vertical-align-middle">
+        <div class="panel">
+            <div class="panel-body">
+                <div class="brand">
+                    <img class="brand-img"
+                         src="{{ static_url('img/logo.png') }}"
+                         style="width:80px" alt="...">
+                    <h2 class="brand-text font-size-18">派队管家注册</h2>
+                </div>
+                <form method="post" action="#" autocomplete="off"
+                      id="register-form">
+                    <div class="pearls pearls-sm row">
+                        <div class="pearl current col-xs-4">
+                            <span class="pearl-number">1</span>
+                            <span class="pearl-title">注册账号</span>
+                        </div>
+                        <div class="pearl col-xs-4">
+                            <span class="pearl-number">2</span>
+                            <span class="pearl-title">填写资料</span>
+                        </div>
+                        <div class="pearl col-xs-4">
+                            <span class="pearl-number">3</span>
+                            <span class="pearl-title">等待审核</span>
+                        </div>
+                    </div>
+                    <div id="email-group"
+                         class="form-group {% if form.email.errors %}has-error{% endif %}">
+                        {{ form.email.label(class="sr_only", style="display:
+                        none") }}
+                        {{ form.email(class="form-control",
+                        placeholder="邮箱")|safe }}
+                        {{ render_field_error(form.email) }}
+                        <span id="email-error" class="help-block hide"></span>
+                    </div>
+                    <div id="captcha-group"
+                         class="form-group {% if form.captcha.errors %}has-error{% endif %}">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="captcha"
+                                   name="captcha" placeholder="图形验证码">
+                            <span class="input-group-btn">
+                            <img class="captcha-image" height="36"
+                                 src="{{ reverse_url('club_captcha_image') }}?=1"
+                                 title="点击换一个">
+                        </span>
+                        </div>
+                        {{ render_field_error(form.captcha) }}
+                        <span id="captcha-error" class="help-block hide"></span>
+                    </div>
+                    <div class="form-group {% if form.name.errors %}has-error{% endif %}">
+                        {{ form.name.label(class="sr_only", style="display:
+                        none") }}
+                        {{ form.name(class="form-control",
+                        placeholder="昵称")|safe }}
+                        {{ render_field_error(form.name) }}
+                    </div>
+                    <div class="form-group {% if form.password.errors %}has-error{% endif %}">
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.province(class="form-control",
+                                    placeholder="省份")|safe }}
+                                {{ render_field_error(form.province) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.city(class="form-control",
+                                    placeholder="城市")|safe }}
+                                {{ render_field_error(form.city) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group {% if form.password.errors %}has-error{% endif %}">
+                        {{ form.password.label(class="sr_only", style="display:
+                        none") }}
+                        {{ form.password(class="form-control",
+                        placeholder="登录密码")|safe }}
+                        {{ render_field_error(form.password) }}
+                    </div>
+                    <div class="form-group {% if form.confirmed_password.errors %}has-error{% endif %}">
+                        {{ form.confirmed_password.label(class="sr_only",
+                        style="display: none") }}
+                        {{ form.confirmed_password(class="form-control",
+                        placeholder="确认密码")|safe }}
+                        {{ render_field_error(form.confirmed_password) }}
+                    </div>
+                    <button type="submit" id="btn-submit"
+                            class="btn btn-primary btn-block btn-lg margin-top-40">
+                        下一步
+                    </button>
+                </form>
+                <p>已有账号？请 <a href="{{ reverse_url('club_auth_login') }}">登录</a>
+                </p>
+            </div>
+        </div>
+
+        <footer class="page-copyright page-copyright-inverse">
+            <p>© 2016 派队管家</p>
+        </footer>
+    </div>
+</div>
+<!-- End Page -->
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+
+    (function (document, window, $) {
+        'use strict';
+
+        var cities = {};
+        var citiesUrl = "{{ reverse_url('club_china_cities') }}";
+        var $provinceSelect = $('select[name="province"]');
+        var $citySelect = $('select[name="city"]')
+
+        function makeOptionEl(value) {
+            return '<option value="' + value + '">' + value + '</option>';
+        }
+
+        function changeCities(cities, province) {
+            var targetCities = cities[province];
+            if (targetCities) {
+                var options = '';
+                targetCities.forEach(function(item) {
+                    options += makeOptionEl(item);
+                });
+                $citySelect.html(options)
+            } else {
+                alert("城市信息错误,请稍后再试")
+            }
+        }
+
+        function provinceChange(event) {
+            var province = $provinceSelect.val();
+
+            if ($.isEmptyObject(cities)) {
+                $.get(citiesUrl).success(function(res) {
+                    cities = res;
+                    changeCities(cities, province);
+                }).fail(function(xhr) {
+                    alert("城市信息错误,请稍后再试")
+                })
+            } else {
+                changeCities(cities, province);
+            }
+        };
+
+        $provinceSelect.change(function(event) {
+            provinceChange(event);
+        });
+
+        provinceChange(event);
+
+        var Site = window.Site;
+        $(document).ready(function () {
+            Site.run();
+
+            $('#register-form').formValidation({
+                framework: "bootstrap",
+                button: {
+                    selector: '#btn-submit',
+                    disabled: 'disabled'
+                },
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    email: {
+                        validators: {
+                            notEmpty: {
+                                message: '邮箱不能为空'
+                            },
+                            emailAddress: {
+                                message: '邮箱格式有误'
+                            }
+                        }
+                    },
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: '不能为空'
+                            },
+                            stringLength: {
+                                max: 40,
+                                message: '不能超过32个字'
+                            }
+                        }
+                    },
+                    password: {
+                        validators: {
+                            notEmpty: {
+                                message: '不能为空'
+                            },
+                            stringLength: {
+                                min: 6,
+                                message: '不能少于6位'
+                            },
+                            different: {
+                                field: 'name',
+                                message: '密码不能与用户名相同'
+                            }
+                        }
+                    },
+                    confirmed_password: {
+                        validators: {
+                            notEmpty: {
+                                message: '不能为空'
+                            },
+                            identical: {
+                                field: 'password',
+                                message: '确认密码需要和原密码相同'
+                            }
+                        }
+                    }
+                }
+            });
+
+            $(".captcha-image").click(function () {
+                $(this).attr("src", "{{ reverse_url('club_captcha_image') }}?" + (new Date()).getTime())
+            });
+
+            $("#request-verify-code").click(function () {
+                var mobile = $("#mobile").val(),
+                        captcha_code = $("#captcha_code").val(),
+                        $btn = $(this);
+
+                if (mobile.length < 11) {
+                    $("#mobile-group").addClass("has-error");
+                    $("#mobile-error").text("请填写手机号").removeClass("hide");
+                    return;
+                }
+                if (!captcha_code || captcha_code.length <= 0) {
+                    $("#captcha-group").addClass("has-error");
+                    $("#captcha-error").text("请填写图形验证码").removeClass("hide");
+                    return;
+                }
+
+                $("#mobile-group").removeClass("has-error");
+                $("#mobile-error").addClass("hide");
+
+                var normalText = $btn.text(),
+                        loadingText = "秒后可重发";
+
+                alertify.theme("bootstrap");
+                $.post("{{ reverse_url('club_request_verify_code') }}",
+                        {"mobile": mobile, "action": "register"},
+                        function (data) {
+
+                            $("input[name='verify_code']").focus();
+
+                            $btn.prop("disabled", true);
+                            var i = 30;
+                            $btn.text('(' + i + ')' + loadingText).css('opacity', '.6');
+                            var timeout = setInterval(function () {
+                                $btn.text('(' + (--i) + ')' + loadingText);
+                                if (i === 0) {
+                                    clearInterval(timeout);
+                                    $btn.prop("disabled", false);
+                                    $btn.text("重新发送").css('opacity', '1');
+                                }
+                            }, 1000);
+
+                        }, "json").fail(function (e) {
+                    var data = $.parseJSON(e.responseText);
+                    $("#mobile-group").addClass("has-error");
+                    $("#mobile-error").text(data.error).removeClass("hide");
+                });
+            });
+        });
+    })(document, window, jQuery);
+</script>
+{% endblock %}

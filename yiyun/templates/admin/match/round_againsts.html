@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% set page_title = "对阵图设置" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "match" %}
+{% set site_submenu_active = "create" %}
+
+{% block body %}
+<div class="page" id="vue-app">
+  <div class="page-header">
+    <h1 class="page-title">对阵图设置</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('admin_matches') }}">赛事管理</a></li>
+      <li><a href="{{ reverse_url('admin_match_detail', match.id) }}">{{ match.title }}</a></li>
+      <li class="active">对阵图设置</li>
+    </ol>
+  </div>
+  <div class="page-content container-fluid">
+    <div class="panel">
+      <div class="panel-body">
+        <p style="text-align:center" v-if="members.length == 0">
+            还没有参赛者报名
+        </p>
+
+        <form action="" method="post" id="againsts-form" v-if="members.length > 0">
+        {% if match.type == 0 %}
+        <div class="form-inline">
+          {% raw -%}
+          <div v-for="against in againsts" class="row"  style="margin-left:10px;margin-bottom:10px;">
+            <div class="form-group">
+                <label class="control-label">主场</label>
+                <select class="form-control" name="ag-left-{{ $index }}" v-model="against.left_member_id">
+                  <option v-for="member in members" v-bind:value="member.id">
+                    {{ member.name || "无" }}
+                  </option>
+                </select>
+                <label class="control-label">客场</label>
+                <select class="form-control" name="ag-right-{{ $index }}" v-model="against.right_member_id">
+                  <option v-for="member in members" v-bind:value="member.id">
+                    {{ member.name || "无" }}
+                  </option>
+                </select>
+                <label class="control-label">比赛地址</label>
+                <input class="form-control" name="ag-address-{{ $index }}" type="text" value="{{ against.address }}">
+                <label class="control-label">比赛时间</label>
+                <input class="form-control datetime-widget" name="ag-start_time-{{ $index }}" type="text" value="{{ against.start_time }}">
+                <label class="control-label">比分</label>
+                <input class="form-control" style="width:50px;text-align:center" name="ag-left_score-{{ $index }}" type="text" value="{{ against.left_score }}"> :
+                <input class="form-control" style="width:50px;text-align:center" name="ag-right_score-{{ $index }}" type="text" value="{{ against.right_score }}">
+                <a class="btn btn-default" v-if="$index!=againsts.length-1" href="###" @click="removeOption($index)">删除</a>
+                <a class="btn btn-success" v-if="$index==againsts.length-1" href="###" @click="addOption">添加</a>
+            </div>
+          </div>
+          {%- endraw %}
+        </div>
+        {% else %}
+        <div class="form-inline">
+          {% raw -%}
+          <div v-for="against in againsts" class="row"  style="margin-left:10px;margin-bottom:10px;">
+            <div class="form-group">
+                <label class="control-label">参赛者</label>
+                <select class="form-control" name="ag-left-{{ $index }}" v-model="against.left_member_id" v-on:change="onChange">
+                  <option v-for="member in members" v-bind:value="member.id" v-bind:disabled="addedMembers.indexOf(member.id) >= 0"
+                      v-bind:selected="against.left_member_id == member.id">
+                    {{ member.name || "无" }}
+                  </option>
+                </select>
+                <label class="control-label">成绩</label>
+                <input class="form-control" style="width:50px;text-align:center" name="ag-left_score-{{ $index }}" type="text" value="{{ against.left_score || '0' }}">
+                <a class="btn btn-default" v-if="$index!=againsts.length-1" href="###" @click="removeOption($index)">删除</a>
+                <a class="btn btn-success" v-if="$index==againsts.length-1" href="###" @click="addOption">添加</a>
+            </div>
+          </div>
+          {%- endraw %}
+        </div>
+        {% endif %}
+        <div class="clear"></div>
+        <div class="form-group" style="margin-top:15px;">
+            {% if match.type == 0 %}
+            <button type="button" class="btn btn-primary btn-lg" @click="save">保存</button>
+            {% else %}
+            <button type="button" class="btn btn-primary btn-lg" @click="save">保存</button>
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+              批量添加
+            </button>
+            {% endif %}
+            <label id="tip-msg" style="color:red" class="hide">保存成功！</label>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% raw -%}
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="cancelAddMultMembers">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="myModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+          <form class="form-horizontal" method="get">
+            <label class="control-label mb15">选择成员</label>
+
+            <div class="form-group">
+              <div class="col-sm-12 pl15">
+
+                <div class="bs-component" v-for="member in members">
+                  <div class="checkbox-custom checkbox-success fill mb5">
+                    <input type="checkbox" id="checkboxDefault{{$index}}" v-bind:value="member.id" 
+                      v-bind:disabled="addedMembers.indexOf(member.id) >= 0" v-model="multAddsMembers">
+                    <label for="checkboxDefault{{$index}}">{{ member.name || "无" }}</label>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" @click="cancelAddMultMembers">取消</button>
+          <button type="button" class="btn btn-primary" @click="addMultMembers">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {%- endraw %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+var Site = window.Site,
+    members = {{ json_encode(members)|safe }},
+    againsts = {{ json_encode(againsts)|safe }};
+
+Vue.directive('select', {
+  twoWay: true,
+  priority: 1000,
+
+  params: ['options'],
+    
+  bind: function () {
+    var self = this
+    $(this.el)
+      .select2({
+        data: this.params.options
+      })
+      .on('change', function () {
+        self.set(this.value)
+      })
+  },
+  update: function (value) {
+    $(this.el).val(value).trigger('change')
+  },
+  unbind: function () {
+    $(this.el).off().select2('destroy')
+  }
+})
+
+var app = new Vue({
+  el: "#vue-app",
+  data: function() {
+      return {
+        againsts: [],
+        members: [],
+        selected: 0,
+        options: [],
+        addedMembers: [],
+        multAddsMembers: []
+      }
+  },
+  ready: function(){
+    Site.run()
+    this.againsts = againsts;
+    this.members = members;
+
+    this.updateAddedMembers();
+
+    if(this.againsts.length == 0) {
+      this.againsts.push({});
+    }
+  },
+  watch: {
+    'againsts': {
+      deep: true,
+      handler: function (val, oldVal) { 
+        jQuery('.datetime-widget').datetimepicker({
+          format:"Y-m-d H:i:00",
+          minTime: "05:00",
+          dayOfWeekStart: 1,
+          step: 30,
+          mask: {replace: function(t){
+          }}
+        })
+      }
+    }
+  },
+  methods: {
+    addMultMembers: function() {
+      var that = this;
+      // 批量添加的时候如果第条为空 则删除他
+      if(this.againsts.length == 1 && !this.againsts[0].left_member_id) {
+        this.againsts = []
+      }
+      this.multAddsMembers.forEach(function(member_id) {
+        that.againsts.push({ left_member_id: member_id })
+      })
+      this.updateAddedMembers()
+
+      this.multAddsMembers = []
+      $('#myModal').modal('hide')
+    },
+    cancelAddMultMembers: function() {
+      this.multAddsMembers = []
+      this.updateAddedMembers()
+      $('#myModal').modal('hide')
+    },
+    updateAddedMembers: function() {
+      var addedMembers = [];
+
+      this.againsts.forEach(function(against) {
+        var left_member_id = against.left_member_id;
+        var right_member_id = against.right_member_id;
+
+        if (addedMembers.indexOf(left_member_id) < 0 && left_member_id) {
+          addedMembers.push(left_member_id);
+        }
+        if (addedMembers.indexOf(right_member_id) < 0 && right_member_id) {
+          addedMembers.push(right_member_id);
+        }
+      });
+      this.addedMembers = addedMembers;
+    },
+    addOption: function(){
+      this.againsts.push({})
+      return false
+    },
+    removeOption: function(idx){
+      this.againsts.splice(idx, 1)
+      this.updateAddedMembers();
+    },
+    onChange: function (event) {
+      this.updateAddedMembers();
+    },
+    save: function() {
+      // 取消所有的 disabled 才能成功的获取值
+      var disabled = $("#againsts-form").find('option:disabled').removeAttr('disabled')
+      var data = $("#againsts-form").serialize()
+      disabled.attr('disabled','disabled');
+
+      $.post("{{ reverse_url('admin_round_againsts', match_round.id) }}", data, function(result) {
+        $("#tip-msg").removeClass('hide').show()
+      }, "json").fail(function(e){
+        var data = e.responseJSON
+        alert(data.error)
+      });
+      return false
+    }
+  }
+});
+</script>
+{% endblock %}

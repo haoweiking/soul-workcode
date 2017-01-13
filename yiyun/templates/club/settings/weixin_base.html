@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% set page_title = "微信公众号设置" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "settings" %}
+{% set site_submenu_active = "weixin" %}
+
+{% block body %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa fa-cog title-icon  " aria-hidden="true"></i>
+            微信公众号设置
+        </h1>
+    </div>
+    <div class="page-content container-fluid">
+        <div class="panel">
+            <div class="panel-body">
+
+                {% if not current_team.wx_appid %}
+                {% include "shared/flashed_messages.html" %}
+                <p class="text-center padding-top-50 padding-bottom-50">
+                    您还未进行微信公众号授权，<a class="blue-font"
+                        href="{{ reverse_url('club_settings_weixin_bind') }}">我要马上授权。</a>
+                </p>
+                {% else %}
+                <div class="nav-tabs-horizontal">
+                    <ul class="nav nav-tabs nav-tabs-line">
+                        <li class="{% if tab_active == 'basic' %}active{% endif %}">
+                            <a href="{{ reverse_url('club_settings_weixin') }}">自动回复</a>
+                        </li>
+                        <li class="{% if tab_active == 'menu' %}active{% endif %}">
+                            <a href="{{ reverse_url('club_settings_weixin_menu') }}">自定义菜单</a>
+                        </li>
+                        <li class="{% if tab_active == 'info' %}active{% endif %}">
+                            <a href="{{ reverse_url('club_settings_weixin_info') }}">绑定公众号</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active">
+                            <div class="padding-top-25 col-sm-6">
+                                {% include "shared/flashed_messages.html" %}
+                                {% block content %}{% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

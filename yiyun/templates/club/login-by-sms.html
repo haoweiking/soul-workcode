@@ -1,0 +1,145 @@
+{% extends "blank.html" %}
+
+{% set page_title = "派队管家登录" %}
+{% set body_class = "page-register-v3 layout-full" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/register-v3.css') }}">
+{% endblock %}
+
+{% block body %}
+<!-- Page -->
+<div class="page animsition vertical-align text-center" data-animsition-in="fade-in"
+data-animsition-out="fade-out">
+    <div class="page-content vertical-align-middle">
+    <div class="panel">
+        <div class="panel-body">
+        <div class="brand">
+            <img class="brand-img" src="{{ static_url('img/logo.png') }}" style="width:80px" alt="...">
+            <h2 class="brand-text font-size-18">派队管家登录</h2>
+        </div>
+        
+        {% from "shared/macro.html" import render_field_error with context %}
+        <form method="post" action="#" autocomplete="off" id="register-form">
+            {% if fail %}
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                登录失败：账号不存
+            </div>
+            {% endif %}
+            <div id="mobile-group" class="form-group {% if form.mobile.errors %}has-error{% endif %}">
+            <label class="sr-only">手机号码</label>
+            <div class="input-group">
+                <span class="input-group-addon">+86</span>
+                {{ form.mobile(class="form-control", placeholder="手机号")|safe }}
+            </div>
+            {{ render_field_error(form.mobile) }}
+            <span id="mobile-error" class="help-block hide"></span>
+            </div>
+            <div id="captcha-group" class="form-group {% if form.captcha_code.errors %}has-error{% endif %}">
+            <div class="input-group">
+                <input type="text" class="form-control" id="captcha_code" name="captcha_code" placeholder="图形验证码">
+                <span class="input-group-btn">
+                <img class="captcha-image" height="36" src="{{ reverse_url('club_captcha_image') }}?=1" title="点击换一个">
+                </span>
+            </div>
+            {{ render_field_error(form.captcha_code) }}
+            <span id="captcha-error" class="help-block hide"></span>
+            </div>
+            <div class="form-group {% if form.verify_code.errors %}has-error{% endif %}">
+            <div class="input-group">
+                <input type="text" class="form-control" name="verify_code" placeholder="短信验证码">
+                <span class="input-group-btn">
+                <button type="button" id="request-verify-code" tabindex="-1" class="btn btn-default btn-outline">获取短信验证码</button>
+                </span>
+            </div>
+            {{ render_field_error(form.verify_code) }}
+            </div>
+            <div class="form-group clearfix">
+            <div class="checkbox-custom checkbox-inline checkbox-primary checkbox-lg pull-left">
+                <input type="checkbox" id="inputCheckbox" name="remember" value="on">
+                <label for="inputCheckbox">记住登录</label>
+            </div>
+            <a class="pull-right" href="{{ reverse_url('club_forgot_password') }}">找回密码?</a>
+            </div>
+            <button type="submit" id="btn-submit" class="btn btn-primary btn-block btn-lg margin-top-40">登录</button>
+
+        </form>
+        <p><a href="{{ reverse_url('club_auth_login') }}">账号密码登录</a> 或 <a href="{{ reverse_url('club_auth_register') }}">注册</a></p>
+        </div>
+    </div>
+
+    <footer class="page-copyright page-copyright-inverse">
+        <p>© 2016 派队管家</p>
+    </footer>
+    </div>
+</div>
+<!-- End Page -->
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+  (function(document, window, $){
+    'use strict';
+
+    var Site = window.Site;
+    $(document).ready(function(){
+      Site.run();
+
+      $(".captcha-image").click(function(){
+        $(this).attr("src", "{{ reverse_url('club_captcha_image') }}?"+(new Date()).getTime())
+      });
+
+      $("#request-verify-code").click(function(){
+          var mobile = $("#mobile").val(),
+              captcha_code = $("#captcha_code").val(),
+              $btn = $(this);
+
+          if (mobile.length < 11) {
+            $("#mobile-group").addClass("has-error");
+            $("#mobile-error").text("请填写手机号").removeClass("hide");
+            return;
+          }
+          if (!captcha_code || captcha_code.length <= 0) {
+            $("#captcha-group").addClass("has-error");
+            $("#captcha-error").text("请填写图形验证码").removeClass("hide");
+            return;
+          }
+
+          $("#mobile-group").removeClass("has-error");
+          $("#mobile-error").addClass("hide");
+
+          var normalText = $btn.text(),
+              loadingText = "秒后可重发";
+
+          alertify.theme("bootstrap");
+          $.post("{{ reverse_url('club_request_verify_code') }}", 
+            {"mobile": mobile, "action": "login"},
+            function(data){
+
+              $("input[name='verify_code']").focus();
+
+              $btn.prop("disabled", true);
+              var i = 30;
+              $btn.text('(' + i + ')'+loadingText).css('opacity', '.6');
+              var timeout = setInterval(function() {
+                $btn.text('(' + (--i) + ')'+loadingText);
+                if (i === 0) {
+                  clearInterval(timeout);
+                  $btn.prop("disabled", false);
+                  $btn.text("重新发送").css('opacity', '1');
+                }
+              }, 1000);
+
+            }, "json").fail(function(e){
+              var data = $.parseJSON(e.responseText);
+              $("#mobile-group").addClass("has-error");
+              $("#mobile-error").text(data.error).removeClass("hide");
+          });
+      });
+    });
+  })(document, window, jQuery);
+</script>
+{% endblock %}

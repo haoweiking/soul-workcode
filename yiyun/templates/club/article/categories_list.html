@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% set page_title = "修改文章" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "news" %}
+{% set site_submenu_active = "categories_list" %}
+
+
+{% block body %}
+<div class="page" id="vue-app">
+  <div class="page-header">
+    <h1 class="page-title">文章管理</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="#">文章分类列表</a></li>
+    </ol>
+    <div class="page-header-actions">
+      <!-- <a href="#" class="btn btn-primary">退款订单</a> -->
+      <a href="{{ reverse_url('club_article_category_add') }}" class="btn btn-primary">添加分类</a>
+    </div>
+  </div>
+  <div class="page-content container-fluid">
+    <div class="panel">
+      <div class="panel-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="text-left">名字</th>
+              <th>文章数量</th>
+              <th class="text-right">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for category in categories %}
+            <tr>
+              <td>
+                {{ category.name or "-" }}
+              </td>
+              <td>
+                {{ category.articles_count or "0" }}
+              </td>
+              <td class="text-right">
+                <div class="btn-group text-right">
+                  <button type="button" class="btn btn-default br2 btn-xs fs12 dropdown-toggle"
+                    data-toggle="dropdown" aria-expanded="false">
+                    <span class="caret ml5"></span>
+                  </button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li>
+                      <a href="{{ reverse_url('club_article_category_edit', category.id) }}">
+                        编辑
+                      </a>
+                    </li>
+                    <li>
+                      <a href="javascript:void(0);"
+                        class="btn-action"
+                        data-url="{{ reverse_url('club_article_categories_list_action') }}"
+                        data-action="delete"
+                        data-id="{{ category.id }}"
+                        data-success="删除成功"
+                        data-fail="删除失败">
+                        删除
+                        </a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel-footer">
+        {{ render_pagination(categories.pagination) }}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(function() {
+
+    $(".btn-action").click(function(){
+        var id = $(this).data("id"),
+            action_url = $(this).data("url"),
+            confirm_msg = $(this).data("confirm"),
+            success_msg = $(this).data("success"),
+            action = $(this).data("action");
+
+        if (!confirm_msg) {
+            confirm_msg = "确定？"
+        }
+
+        alertify.okBtn("确定")
+        .cancelBtn("放弃")
+        .confirm(confirm_msg, function () {
+            $.post(action_url, {"action": action, "id": id}, function(data){
+                if("status" in data && data['status'] == "ok") {
+                    toastr.success(success_msg, "", {
+                        "positionClass": "toast-top-center",
+                        "timeOut": 1000
+                    });
+
+                    setTimeout(function(){
+                        location.reload();
+                    }, 1100);
+                }
+            }, "json").fail(function(e){
+                console.log(e);
+            });
+        }, function() {
+            // user clicked "cancel"
+        });
+    }); 
+
+});
+</script>
+{% endblock %}

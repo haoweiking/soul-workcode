@@ -1,0 +1,27 @@
+{% extends "settings/weixin_base.html" %}
+
+{% set site_menu_active = "settings" %}
+{% set tab_active = "info" %}
+
+{% block content %}
+ <table class="table table-bordered">
+     <tr>
+         <th class="text-right" style="width:80px;">名称</th>
+         <td>{{ weixin.nick_name }}（{{ weixin.user_name }}）</td>
+     </tr>
+     <tr>
+         <th class="text-right">类型</th>
+         <td>{{ weixin.service_type_name }}</td>
+     </tr>
+     <tr>
+         <th class="text-right">认证状态</th>
+         <td>{{ weixin.verify_type_name }}</td>
+     </tr>
+     <tr>
+         <th class="text-right">权限</th>
+         <td>{{ "<br>".join(weixin.permission_names)|safe }}</td>
+     </tr>
+ </table>
+ 
+ <p>如果以上信息有变更，请 <a href="{{ reverse_url('club_wxmp_bind') }}">重新授权</a> </p>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% set page_title = "提现记录" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "report" %}
+{% set site_submenu_active = "cash-log" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+<style>
+    .select2-container {
+        display: inline-block;
+    }
+    .money-icon {
+        color: #ffb63c;
+    }
+    .cog-icon {
+        color: #00ace3;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa fa-cog cog-icon" aria-hidden="true"></i>
+            提现记录
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+            <li class="active">提现记录</li>
+        </ol>
+        <div class="page-header-actions">
+            <a href="{{ reverse_url('club_apply_cash') }}"
+               class="btn btn-primary">申请提现</a>
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="panel">
+            <div class="panel-heading">
+                <form action="" class="pull-left" id="search-form">
+                    <label class="form-inline">状态：
+                        <select name="state"
+                                class="form-control input-sm select2-hidden-accessible"
+                                data-plugin="select2">>
+                            <option value="100">全部</option>
+                            {% for state, state_name in states.items() %}
+                            <option value="{{ state.value }}" {% if
+                                    handler.get_argument(
+                            'state', '') == "%s" % state.value
+                            %}selected="selected"{% endif %}>{{ state_name
+                            }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="form-inline">时间：
+                        <input type="text" name="start"
+                               class="form-control input-sm date-widget"
+                               value="{{ handler.get_argument('start', '') }}">
+                        至
+                        <input type="text" name="end"
+                               class="form-control input-sm date-widget"
+                               value="{{ handler.get_argument('end', '') }}">
+                    </label>
+                    <button class="btn btn-primary btn-sm">查询</button>
+                </form>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>订单编号</th>
+                            <th>提现金额</th>
+                            <th>账号</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>完成时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for log in cash_logs %}
+                        <tr>
+                            <td>{{ log.order_no }}</td>
+                            <td>{{ log.amount }}</td>
+                            <td>{{ log.cash_account }}({{ log.cash_account_type
+                                }})
+                            </td>
+                            <td>{{ log.state_name }}</td>
+                            <td>{{ log.created }}</td>
+                            <td>{{ log.paid if log.paid else "-" }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel-footer">
+                {% if cash_logs %}
+                {{ render_pagination(cash_logs.pagination) }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

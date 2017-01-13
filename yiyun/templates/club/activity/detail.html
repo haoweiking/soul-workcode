@@ -1,0 +1,38 @@
+<header class="slidePanel-header bg-purple-600">
+  <div class="slidePanel-actions" aria-label="actions" role="group">
+    <button type="button" class="btn btn-pure btn-inverse slidePanel-close actions-top icon wb-close"
+    aria-hidden="true"></button>
+  </div>
+  <h1>活动: {{ activity.title }}</h1>
+</header>
+<div class="slidePanel-inner">
+  <section class="slidePanel-inner-section">
+    <div class="nav-tabs-horizontal">
+      <ul class="nav nav-tabs nav-tabs-line" data-plugin="nav-tabs" role="tablist">
+        <li class="" role="presentation">
+          <a data-toggle="tab" href="#exampleTabsLineOne" aria-controls="exampleTabsLineOne" role="tab" aria-expanded="false">活动介绍</a>
+        </li>
+        <li role="presentation" class=""><a data-toggle="tab" href="#exampleTabsLineTwo" aria-controls="exampleTabsLineTwo" role="tab" aria-expanded="false">场次</a></li>
+        <li role="presentation" class="active"><a data-toggle="tab" href="#exampleTabsLineThree" aria-controls="exampleTabsLineThree" role="tab" aria-expanded="true">报名记录</a></li>
+      </ul>
+      <div class="tab-content padding-top-20">
+        <div class="tab-pane" id="exampleTabsLineOne" role="tabpanel">
+          活动介绍
+        </div>
+        <div class="tab-pane" id="exampleTabsLineTwo" role="tabpanel">
+          场次
+        </div>
+        <div class="tab-pane active" id="exampleTabsLineThree" role="tabpanel">
+          报名记录
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="slidePanel-footer hide">
+    <button type="button" class="btn btn-icon btn-danger btn-round">
+      <i class="icon wb-flag" aria-hidden="true"></i>
+    </button>
+    <span>Tody completed
+      <span class="red-600">3 tasks</span> . 3 New Tasks , 0 Schedule , 1 Topic , 2 Documents.</span>
+  </div>
+</div>

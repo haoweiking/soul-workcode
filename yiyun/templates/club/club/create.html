@@ -1,0 +1,147 @@
+{% extends "blank.html" %}
+
+{% set page_title = "注册" %}
+{% set body_class = "page-register-v3 layout-full" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/register-v3.css') }}">
+{% endblock %}
+
+{% block body %}
+<!-- Page -->
+<div class="page animsition vertical-align text-center"
+     data-animsition-in="fade-in"
+     data-animsition-out="fade-out">
+    <div class="page-content vertical-align-middle">
+        <div class="panel">
+            <div class="panel-body">
+                <div class="brand">
+                    <img class="brand-img"
+                         src="{{ static_url('img/logo.png') }}"
+                         style="width:80px" alt="...">
+                    <h2 class="brand-text font-size-18">派队管家注册</h2>
+                </div>
+                {% from "shared/macro.html" import render_field_error,
+                render_field_label with context %}
+                <form method="post" action="#" autocomplete="off"
+                      id="register-form" enctype="multipart/form-data">
+                    <div class="pearls pearls-sm row">
+                        <div class="pearl done col-xs-4">
+                            <span class="pearl-number">1</span>
+                            <span class="pearl-title">注册账号</span>
+                        </div>
+                        <div class="pearl current col-xs-4">
+                            <span class="pearl-number">2</span>
+                            <span class="pearl-title">填写资料</span>
+                        </div>
+                        <div class="pearl col-xs-4">
+                            <span class="pearl-number">3</span>
+                            <span class="pearl-title">等待审核</span>
+                        </div>
+                    </div>
+
+                    <div class="text-left">
+                        <div class="form-group {% if form.type.errors %}has-error{% endif %}">
+                            {{ render_field_label(form.type) }}
+                            {{ form.type(class="form-control")|safe }}
+                            {{ render_field_error(form.type) }}
+                        </div>
+                        <div class="form-group {% if form.name.errors %}has-error{% endif %}">
+                            {{ render_field_label(form.name) }}
+                            {{ form.name(class="form-control")|safe }}
+                            {{ render_field_error(form.name) }}
+                        </div>
+                        <div class="form-group {% if form.iconfile.errors %}has-error{% endif %}">
+                            {{ render_field_label(form.iconfile) }}
+                            {{ form.iconfile(class="form-control")|safe }}
+                            {{ render_field_error(form.iconfile) }}
+                        </div>
+                        <div class="form-group {% if form.sport.errors %}has-error{% endif %}">
+                            {{ render_field_label(form.sport) }}
+                            {{ form.sport(class="form-control",
+                            **{"data-plugin": "select2"})|safe }}
+                            {{ render_field_error(form.sport) }}
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6 {% if form.province.errors %}has-error{% endif %}">
+                                {{ render_field_label(form.province) }}
+                                {{ form.province(class="form-control",
+                                **{"data-plugin": "select2"})|safe }}
+                                {{ render_field_error(form.province) }}
+                            </div>
+                            <div class="form-group col-sm-6 {% if form.city.errors %}has-error{% endif %}">
+                                {{ render_field_label(form.city) }}
+                                {{ form.city(class="form-control",
+                                **{"data-plugin": "select2"})|safe }}
+                                {{ render_field_error(form.city) }}
+                            </div>
+                        </div>
+                        <div class="form-group {% if form.description.errors %}has-error{% endif %}">
+                            {{ render_field_label(form.description) }}
+                            {{ form.description(class="form-control",
+                            rows=8)|safe }}
+                            {{ render_field_error(form.description) }}
+                        </div>
+                        <div id="open_type_group"
+                             class="form-group {% if form.open_type.errors %}has-error{% endif %}">
+                            {{ render_field_label(form.open_type) }}
+                            {{ form.open_type(class="form-control",
+                            **{"data-plugin": "select2"})|safe }}
+                            {{ render_field_error(form.open_type) }}
+                        </div>
+                    </div>
+                    <button type="submit" id="btn-submit"
+                            class="btn btn-primary btn-block btn-lg margin-top-40">
+                        下一步
+                    </button>
+                </form>
+                <p>换个账号？请 <a href="{{ reverse_url('club_auth_login') }}">退出</a>
+                </p>
+            </div>
+        </div>
+        <footer class="page-copyright page-copyright-inverse">
+            <p>© 2016 派队管家</p>
+        </footer>
+    </div>
+</div>
+<!-- End Page -->
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    (function (document, window, $) {
+        'use strict';
+
+        var Site = window.Site;
+        var cities = {{ json_encode(cities) | safe }};
+
+        $(document).ready(function () {
+            Site.run();
+
+            $("#province").change(function () {
+                var province = $(this).val();
+
+                $("#city").find('option').remove();
+
+                $.each(cities[province], function (key, value) {
+                    $("#city").append('<option value=' + value + '>' + value + '</option>');
+                });
+
+                $('#city').trigger('change')
+            });
+
+            $("#type").change(function () {
+                var team_type = parseInt($(this).val());
+                if (team_type == 0) {
+                    $("#open_type_group").show();
+                } else {
+                    $("#open_type_group").hide();
+                }
+            });
+
+            $("#type").trigger("change");
+
+        });
+    })(document, window, jQuery);
+</script>
+{% endblock %}

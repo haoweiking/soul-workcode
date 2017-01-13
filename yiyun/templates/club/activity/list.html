@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% set page_title = "活动管理" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "activity" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">活动管理</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li class="active">活动管理</li>
+    </ol>
+    <div class="page-header-actions">
+      <a href="{{ reverse_url('club_activities_refunded_orders') }}" class="btn btn-primary">退款订单</a>
+      <a href="{{ reverse_url('club_activity_create') }}" class="btn btn-primary">发布活动</a>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="panel">
+      <div class="panel-heading">
+        <form action="" class="pull-left" id="search-form">
+        <label class="form-inline">活动状态：
+          <select name="state" class="form-control input-sm">
+            <option value="-1">全部</option>
+            <option value="1" {% if handler.get_argument('state', '') == '1'%}selected="selected"{% endif %}>进行中</option>
+            <option value="2" {% if handler.get_argument('state', '') == '2'%}selected="selected"{% endif %}>已结束</option>
+            <option value="0" {% if handler.get_argument('state', '') == '0'%}selected="selected"{% endif %}>已取消</option>
+          </select>
+        </label>
+        <label class="form-inline">排序：
+          <select name="sort" class="form-control input-sm">
+            <option value="">默认</option>
+            <option value="1" {% if handler.get_argument('sort', '') == '1'%}selected="selected"{% endif %}>创建时间</option>
+            <option value="2" {% if handler.get_argument('sort', '') == '2'%}selected="selected"{% endif %}>开始时间</option>
+          </select>
+        </label>
+        </form>
+
+        <form class="panel-search-form pull-right" role="search">
+          <div class="input-search">
+            <i class="input-search-icon wb-search" aria-hidden="true"></i>
+            <input type="text" class="form-control" name="kw" value="{{ handler.get_argument('kw', '') }}" placeholder="搜索">
+            <!-- <i class="icon wb-loop"></i> -->
+          </div>
+        </form>
+      </div>
+      <div class="panel-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>活动名称</th>
+              <th>单价</th>
+              <th>已报/限报</th>
+              <th>组织者</th>
+              <th>活动时间</th>
+              <th>状态</th>
+              <th class="text-center">报名表</th>
+              <th class="text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for activity in activities %}
+            <tr id="item-{{ activity.id }}">
+              <td>
+                <a href="#">{{ activity.title }}</a>
+              </td>
+              <td>
+                  {{ activity.price }}
+              </td>
+              <td>
+                  {{ activity.members_count }}/{{ activity.max_members }}
+              </td>
+              <td>{{ activity.leader.name or "无名" }}</td>
+              <td>
+                {{ activity.start_time }} <br>
+                {{ activity.end_time }}
+              </td>
+              <td class="work-status">
+                <span class="label label-primary">{{ activity.state_name }}</span>
+              </td>
+              <td class="text-center">
+                <a href="{{ reverse_url('club_activity_applyform', activity.id) }}">
+                  查看
+                </a>
+              </td>
+              <td class="text-center">
+                <div class="dropdown">
+                  <a href="#" class="dropdown-toggle" id="activity-actions-{{activity.id}}" data-toggle="dropdown" aria-expanded="false"><i class="icon wb-menu" ></i></a>
+                  <ul class="dropdown-menu dropdown-menu-primary" aria-labelledby="activity-actions-{{activity.id}}" role="menu">
+                    {% if activity.can_change() %}
+                    <li role="presentation"><a href="{{ reverse_url('club_activity_edit', activity.id) }}" role="menuitem">编辑</a></li>
+                    {% endif %}
+                    <li role="presentation"><a href="{{ reverse_url('club_activity_create') }}?duplicate_id={{ activity.id }}" role="menuitem">复制</a></li>
+                    {% if activity.can_cancel() %}
+                    <li class="divider" role="presentation"></li>
+                    <li role="presentation">
+                      <a href="javascript:void(0)" class="btn-action" data-id="{{ activity_id }}" data-url="{{ reverse_url('club_activity_detail', activity.id) }}" data-action="cancel" role="menuitem" data-confirm="确定要取消此活动？取消后所有未开始的场次将取消并退款", data-success="取消活动成功">取消</a>
+                    </li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-footer">
+        {{ render_pagination(activities.pagination) }}
+      </div>
+    </div> <!-- panel-body end -->
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_url('js/app.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('js/pages/activity.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% set page_title = "认证" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "news" %}
+{% set site_submenu_active = "create" %}
+
+{% block body %}
+<div class="page" id="vue-app">
+    <div class="page-header">
+        <h1 class="page-title">填写认证信息</h1>
+    </div>
+    <div class="page-content container-fluid">
+        <div class="panel">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        {% from "shared/macro.html" import render_form %}
+                        <form method="post" action="#" id="article-create-form" enctype="multipart/form-data">
+                            {{ render_form(form) }}
+
+                            {% if application is none %}
+                            <button type="submit" id="btn-submit" class="btn btn-primary btn-lg">提交</button>
+                            {% else %}
+                            <button type="submit" id="btn-submit" class="btn btn-primary btn-lg">保存</button>
+                            {% endif %}
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% set page_title = "编辑轮次" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "match" %}
+{% set site_submenu_active = "create" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+<style>
+  .fa-futbol-o {
+    color: #a788d2;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="fa fa-futbol-o" aria-hidden="true"></i>
+      编辑轮次
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('club_matches') }}">赛事管理</a></li>
+      <li><a href="{{ reverse_url('club_match_detail', match.id) }}">{{ match.title }}</a></li>
+      <li class="active">编辑轮次</li>
+    </ol>
+  </div>
+  <div class="page-content container-fluid">
+    <div class="panel">
+      <div class="panel-body">
+        {% from "shared/macro.html" import render_field with context %}
+        <form method="post" autocomplete="off" style="max-width: 350px">
+        {% for field in form  %}
+        <div class="form-group">
+          {{ render_field(field) }}
+        </div>
+        {% endfor %}
+          <div class="form-group">
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

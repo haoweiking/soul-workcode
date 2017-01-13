@@ -1,0 +1,89 @@
+{% extends "club/info_layout.html" %}
+
+{% block styles %}
+<style>
+.team-info-table th {
+    width: 100px;
+}
+</style>
+{% endblock %}
+
+{% set site_menu_active = "" %}
+{% set site_submenu_active = "" %}
+{% set tab_active = "basic" %}
+
+{% block content %}
+<table class="table table-hover team-info-table">
+    <tr>
+        <th class="wd50">名称</th>
+        <td>{{ team.name or "" }}</td>
+    </tr>
+    <tr>
+        <th>徽标</th>
+        <td>
+            <img src="{{ '%s%s' % (team.icon['url'], team.icon['sizes'][0]) }}"
+                 alt="icon" style="">
+        </td>
+    </tr>
+    <tr>
+        <th>运动类型</th>
+        <td>{{ team.display_sport_type() or "-" }}</td>
+    </tr>
+    <tr>
+        <th>省份</th>
+        <td>{{ team.province or "-" }}</td>
+    </tr>
+    <tr>
+        <th>城市</th>
+        <td>{{ team.city or "-" }}</td>
+    </tr>
+    <tr>
+        <th>联系地址</th>
+        <td>{{ team.address or "-" }}</td>
+    </tr>
+    <tr>
+        <th>联系人</th>
+        <td>{{ team.contact_person or "-" }}</td>
+    </tr>
+    <tr>
+        <th>联系电话</th>
+        <td>{{ team.contact_phone or "-" }}</td>
+    </tr>
+    <tr>
+        <th>介绍</th>
+        <td>{{ team.description or "-" }}</td>
+    </tr>
+    <tr>
+        <th>实名认证</th>
+        <td>
+            {% if team.verified %}
+              <span class="btn btn-success btn-sm">已认证</span>
+            {% else %}
+                {% if application is none %}
+                  <span class="btn btn-sm btn-default">未认证</span>
+                  <a href="{{ reverse_url('club_certify_enterprise_create') }}">立即认证</a>
+                {% else %}
+
+                    {% if application.is_requesting %}
+                      <span class="btn btn-sm btn-info">认证中</span>
+                      <a href="{{ reverse_url('club_certify_enterprise_create') }}">修改认证信息</a>
+                    {% elif application.is_disapproved %}
+                        <span class="btn btn-sm btn-danger">认证失败</span>
+                        <a href="{{ reverse_url('club_certify_enterprise_create') }}">修改认证信息</a>
+                        <br>
+                        <span class="text-danger">原因：{{ team.verified_reason or "" }}</span>
+                    {% elif application.is_disapproved %}
+                        <span class="btn btn-success btn-sm">已认证</span>
+                    {% endif %}
+
+                {% endif %}
+            {% endif %}
+        </td>
+    </tr>
+</table>
+<a class="pull-right btn btn-primary" href="{{ reverse_url('club_settings_basic') }}">修改</a>
+{% endblock %}
+
+
+{% block scripts %}
+{% endblock %}

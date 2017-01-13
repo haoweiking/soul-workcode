@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% set page_title = "报名成员列表" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "match" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="page">
+        <div class="page-header">
+            <h1 class="page-title">报名成员列表</h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+                <li><a href="{{ reverse_url('admin_matches') }}">赛事管理</a></li>
+                <li><a href="{{ reverse_url('admin_match_detail', match.id) }}">{{ match.title }}</a></li>
+                <li class="active">报名成员列表</li>
+            </ol>
+            <div class="page-header-actions">
+                <!-- <a href="#" class="btn btn-primary">退款订单</a> -->
+                <!-- <a href="{{ reverse_url('admin_round_create', match.id) }}" class="btn btn-primary">发布动态</a> -->
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="panel">
+                <div class="panel-heading">
+                    <form action="" class="pull-left" id="search-form">
+                        <label class="form-inline">分组：
+                            <select name="group_name"
+                                    class="form-control input-sm">
+                                <option value="">全部</option>
+                                {% for group in groups %}
+                                <option value="{{ group['name'] }}">
+                                    {{ group['name'] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </form>
+                    <div class="pull-right">总计: {{ sum_fee }}元</div>
+                </div>
+                <div class="panel-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>头像</th>
+                                {% for option_info in match.option_info_list %}
+                                <th>{{ option_info.option_name }}</th>
+                                {% endfor %}
+                                <th>报名时间</th>
+                                <th>分组</th>
+                                <th>价格</th>
+                                <th>状态</th>
+                                <th class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for member in members %}
+                            <tr>
+                                <td><img src="{{ member.mini_avatar }}"></td>
+                                {% for option_info in match.option_info_list %}
+                                <td>{{ member.get_option_value(option_info.option_type, option_info.option_key) }}</td>
+                                {% endfor %}
+                                <td>{{ member.created }}</td>
+                                <td>{{ member.group.name }}</td>
+                                <td>{{ member.total_fee }}</td>
+                                <td>{{ member.state_name }}</td>
+                                <td class="text-center">
+                                    <div class="dropdown">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="icon wb-menu" ></i></a>
+                                        <ul class="dropdown-menu dropdown-menu-primary" role="menu">
+                                            {% if member.state == member.MatchMemberState.banned %}
+                                                <li role="presentation">
+                                                    <a href="javascript:void(0)" class="btn-action" data-id="{{ member.id }}"
+                                                       data-url="{{ reverse_url('admin_match_members_list_action') }}" data-action="unban" role="menuitem" data-confirm="确定解除？"
+                                                       data-success="解除成功">解除禁赛</a>
+                                                </li>
+                                            {% else %}
+                                                <li role="presentation">
+                                                    <a href="javascript:void(0)" class="btn-action" data-id="{{ member.id }}"
+                                                       data-url="{{ reverse_url('admin_match_members_list_action') }}" data-action="ban" role="menuitem" data-confirm="确定禁赛？"
+                                                       data-success="设置禁赛成功">禁赛</a>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                    {{ render_pagination(pagination) }}
+                </div>
+            </div> <!-- panel-body end -->
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_url('js/app.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('js/pages/match_members.js') }}"></script>
+<script type="text/javascript">
+    $(function(){
+        $("#search-form select").change(function(){
+            $(this).parents("form").submit();
+        });
+    });
+</script>
+{% endblock %}

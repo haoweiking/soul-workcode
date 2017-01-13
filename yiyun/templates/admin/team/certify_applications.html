@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% set page_title = "俱乐部管理" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "team" %}
+{% set site_submenu_active = "certify_applications" %}
+
+{% block styles %}
+<style>
+    .w50 {
+        width: 50px;
+    }
+    td {
+        word-break: break-text;
+    }
+</style>
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page" id="vue-app">
+  <div class="page-header">
+    <h1 class="page-title">俱乐部管理</h1>
+    <ol class="breadcrumb"e
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li class="active">俱乐部实名认证申请</li>
+    </ol>
+    <div class="page-header-actions">
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="panel">
+      <div class="panel-heading">
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+		<table class="table table-condensed">
+          <thead>
+            <tr>
+              <th>俱乐部</th>
+              <th>企业名称</th>
+              <th>营业执照<br>编号</th>
+              <th>营业执照<br>扫描件</th>
+              <th>法人<br>姓名</th>
+              <th>法人<br>身份证号</th>
+              <th>法人<br>身份证正面</th>
+              <th>法人<br>身份证反面</th>
+              <th>联系人<br>姓名</th>
+              <th>联系人<br>手机</th>
+              <th>申请时间</th>
+              <th>最后修改</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+              {% for application in applications %}
+              <tr>
+                <td>
+                  <a href="#">{{ application.team.name or "" }}</a>
+                </td>
+                <td>{{ application.enterprise_name or "-" }}</td>
+                <td>{{ application.license_number or "-" }}</td>
+                <td>
+                    <a href="{{ application.license_img_url }}" target="_blank">
+                        <img src="{{ application.license_img_url }}"
+                            class="w50"
+                            alt="license_img">
+                    </a>
+                </td>
+                <td>{{ application.director or "-" }}</td>
+                <td>{{ application.director_id or "-" }}</td>
+                <td>
+                    <a href="{{ application.director_id_card_front_side_img_url }}" target="_blank">
+                        <img src="{{ application.director_id_card_front_side_img_url }}"
+                            class="w50"
+                            alt="director_id_card_front_side_img">
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ application.director_id_card_back_side_img_url }}" target="_blank">
+                        <img src="{{ application.director_id_card_back_side_img_url }}"
+                            class="w50"
+                            alt="director_id_card_back_side_img">
+                    </a>
+                </td>
+                <td>{{ application.contact_name or "-" }}</td>
+                <td>{{ application.contact_phone or "-" }}</td>
+                <td>{{ application.created or "-" }}</td>
+                <td>{{ application.updated or "-" }}</td>
+                <td>
+                    {% if application.is_requesting %}
+                        <a href="javascript:void(0);" class="btn-action btn btn-xs btn-success"
+                            data-url="{{ reverse_url('admin_teams_certify_applications_action') }}"
+                            data-action="approve"
+                            data-id="{{ application.id }}"
+                            data-success="同意审核成功"
+                            data-fail="同意审核失败">同意</a>
+
+                        <a class="btn btn-xs btn-danger" href="#" @click="reject({{ application.id }})">拒绝</a>
+                    {% else %}
+                        {% if application.is_approved %}
+                            <span class="text-success">已同意</span>
+                        {% else %}
+                            <span class="text-danger">已拒绝</span>
+                        {% endif %}
+                    {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+          </tbody>
+        </table>
+		</div>
+      </div>
+      <div class="panel-footer">
+        {{ render_pagination(applications.pagination) }}
+      </div>
+    </div>
+  </div>
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">拒绝原因</h4>
+        </div>
+        <div class="modal-body">
+            <form action="#">
+            {% raw %}
+            <span class="text-danger">{{ rejectReasonError }}</span>
+            {% endraw %}
+            <input name="reason" type="text" class="form-control" placeholder="拒绝原因" v-model="rejectReason">
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" @click="doReject">提交</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+    // 填写拒绝原因的表单的 modal 框
+    var modalApp = new Vue({
+      el: "#vue-app",
+      data: function() {
+          return {
+              currentApplicationId: 0,
+              rejectReason: '',
+              rejectReasonError: ''
+          }
+      },
+      ready: function(){
+        Site.run();
+      },
+      methods: {
+          reject: function(currentApplicationId) {
+              this.currentApplicationId = currentApplicationId
+              $('#myModal').modal('show')
+          },
+          doReject: function() {
+              if (!this.rejectReason) {
+                  this.rejectReasonError = '原因不能为空'
+              } else {
+                  var params = {
+                      "action": "disapprove",
+                      "id": this.currentApplicationId,
+                      "reason": this.rejectReason
+                  }
+                  $.post("{{reverse_url('admin_teams_certify_applications_action')}}", params, function(data){
+                      location.reload()
+                  }, "json")
+              }
+          }
+      }
+    })
+
+    $(".btn-action").click(function(){
+        var id = $(this).data("id"),
+            action_url = $(this).data("url"),
+            confirm_msg = $(this).data("confirm"),
+            success_msg = $(this).data("success"),
+            action = $(this).data("action");
+
+        if (!confirm_msg) {
+            confirm_msg = "确定？"
+        }
+
+        alertify.okBtn("确定")
+        .cancelBtn("放弃")
+        .confirm(confirm_msg, function () {
+            $.post(action_url, {"action": action, "id": id}, function(data){
+                if("status" in data && data['status'] == "ok") {
+                    toastr.success(success_msg, "", {
+                        "positionClass": "toast-top-center",
+                        "timeOut": 1000
+                    });
+
+                    setTimeout(function(){
+                        location.reload();
+                    }, 1100);
+                }
+            }, "json").fail(function(e){
+                console.log(e);
+            });
+        }, function() {
+            // user clicked "cancel"
+        });
+    }); 
+</script>
+{% endblock %}

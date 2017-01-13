@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% set page_title = "赛事管理" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "match" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+<style>
+    .fa-futbol-o {
+        color: #a788d2;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa fa-futbol-o" aria-hidden="true"></i>
+            赛事管理
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+            <li class="active">赛事管理</li>
+        </ol>
+        <div class="page-header-actions">
+            <!-- <a href="#" class="btn btn-primary">退款订单</a> -->
+            <a href="{{ reverse_url('club_matches_create') }}"
+               class="btn btn-primary">发布赛事</a>
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="panel">
+            <div class="panel-heading">
+
+                <form action="" class="pull-left" id="search-form">
+                    <label class="form-inline">赛事状态：
+                        <select name="state" data-plugin="select2" class="form-control input-sm">
+                            <option value="-1">全部</option>
+                            <option value="1" {% if handler.get_argument('state', '') == '1'%}selected="selected"{% endif %}>等待审核</option>
+                            <option value="2" {% if handler.get_argument('state', '') == '2'%}selected="selected"{% endif %}>进行中</option>
+                            <option value="3" {% if handler.get_argument('state', '') == '3'%}selected="selected"{% endif %}>已结束</option>
+                            <option value="0" {% if handler.get_argument('state', '') == '0'%}selected="selected"{% endif %}>已取消</option>
+                        </select>
+                    </label>
+                    <label class="form-inline">排序：
+                        <select name="sort" data-plugin="select2" class="form-control input-sm">
+                            <option value="">默认</option>
+                            <option value="1" {% if handler.get_argument('sort', '') == '1'%}selected="selected"{% endif %}>创建时间</option>
+                            <option value="2" {% if handler.get_argument('sort', '') == '2'%}selected="selected"{% endif %}>开始时间</option>
+                        </select>
+                    </label>
+                </form>
+
+                <form class="panel-search-form pull-right" role="search">
+                    <div class="input-search">
+                        <i class="input-search-icon wb-search"
+                           aria-hidden="true"></i>
+                        <input type="text" class="form-control" name="kw"
+                               value="{{ handler.get_argument('kw', '') }}"
+                               placeholder="搜索">
+                        <!-- <i class="icon wb-loop"></i> -->
+                    </div>
+                </form>
+            </div>
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>赛事名称</th>
+                        <th>报名费</th>
+                        <th>已报/限报</th>
+                        <th>比赛时间</th>
+                        <th>状态</th>
+                        <th class="text-center">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for match in matches %}
+                    <tr id="item-{{ match.id }}">
+                        <td>
+                            <a href="{{ reverse_url('club_match_detail', match.id) }}">{{
+                                match.title }}</a>
+                        </td>
+                        <td>
+                            {{ match.price }}
+                        </td>
+                        <td>
+                            {{ match.members_count }}/{{ match.max_members }}
+                        </td>
+                        <td>
+                            {{ match.start_time }} <br>
+                            {{ match.end_time }}
+                        </td>
+                        <td class="work-status">
+                            <span class="label label-primary">{{ match.state_name }}</span>
+                            {% if match.state == match.MatchState.rejected %}
+                            <br>
+                            <small class="text-danger">原因: {{
+                                match.reject_reason }}
+                            </small>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="dropdown">
+                                <a href="#" class="dropdown-toggle"
+                                   id="match-actions-{{match.id}}"
+                                   data-toggle="dropdown" aria-expanded="false"><i
+                                        class="icon wb-menu"></i></a>
+                                <ul class="dropdown-menu dropdown-menu-primary"
+                                    aria-labelledby="match-actions-{{match.id}}"
+                                    role="menu">
+                                    <li role="presentation"><a
+                                            href="{{ reverse_url('club_match_detail', match.id) }}"
+                                            role="menuitem">详情</a></li>
+                                    <li role="presentation"><a
+                                            href="{{ reverse_url('club_match_members_list', match.id) }}"
+                                            role="menuitem">报名成员列表</a></li>
+                                    <li role="presentation"><a
+                                            href="{{ reverse_url('club_match_statuses', match.id) }}"
+                                            role="menuitem">战报</a></li>
+                                    {% if match.can_change() %}
+                                    <li role="presentation"><a
+                                            href="{{ reverse_url('club_matches_edit', match.id) }}"
+                                            role="menuitem">编辑</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-footer">
+                {{ render_pagination(matches.pagination) }}
+            </div>
+        </div> <!-- panel-body end -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_url('js/app.js') }}"></script>
+<script type="text/javascript">
+    $(function () {
+        $("#search-form select").change(function () {
+            $(this).parents("form").submit();
+        });
+    });
+</script>
+{% endblock %}

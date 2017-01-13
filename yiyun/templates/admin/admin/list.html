@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% set page_title = "管理员管理" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "settings" %}
+{% set site_submenu_active = "admin" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page" id="vue-app">
+    <div class="page-header">
+        <h1 class="page-title">管理员管理</h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+            <li class="active">管理员管理</li>
+        </ol>
+        <div class="page-header-actions">
+            {% if current_user.is_super %}
+            <a href="{{ reverse_url('admin_admins_edit', 'add') }}"
+               class="btn btn-primary">添加管理员</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="panel">
+            <div class="panel-heading">
+                <form class="panel-search-form pull-right" role="search">
+                    <div class="input-search">
+                        <i class="input-search-icon wb-search"
+                           aria-hidden="true"></i>
+                        <input type="text" class="form-control" name="kw"
+                               value="{{ handler.get_argument('kw', '') }}"
+                               placeholder="搜索">
+                        <!-- <i class="icon wb-loop"></i> -->
+                    </div>
+                </form>
+            </div>
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="text-left">用户名</th>
+                        <th class="text-left">名字</th>
+                        <th class="text-left">手机号</th>
+                        <th class="text-left">电子邮箱</th>
+                        <th class="text-center">状态</th>
+                        <th>超级管理员？</th>
+                        <th>角色/权限</th>
+                        <th class="text-center">创建时间</th>
+                        <th class="text-center">最后登录</th>
+                        <th class="text-center">管辖省份</th>
+
+                        {% if current_user.is_super %}
+                        <th class="text-center">操作</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for admin in admins %}
+                    <tr>
+                        <td class="text-left">{{ admin.username }}</td>
+                        <td class="text-left">
+                            {{ admin.name or "" }}
+                        </td>
+                        <td class="text-left">
+                            {{ admin.mobile or "" }}
+                        </td>
+                        <td class="text-left">
+                            {{ admin.email or "" }}
+                        </td>
+                        <td class="text-center">
+                            {{ admin.state_name }}
+                        </td>
+                        <td class="text-center">
+                            {{ admin.is_super }}
+                        </td>
+                        <td class="text-center">
+                            {{ ",".join(admin.role_names) }}
+                        </td>
+                        <td class="text-center">
+                            {{ admin.created.strftime("%Y-%m-%d %H:%S") }}
+                        </td>
+                        <td class="text-center">
+                            {{ admin.last_login.strftime("%Y-%m-%d %H:%S") if
+                            admin.last_login else "未曾登录" }}
+                        </td>
+                        <td>
+                            {{ ",".join(admin.manage_provinces) }}
+                        </td>
+                        {% if current_user.is_super %}
+                        <td class="text-center">
+                            <div class="btn-group">
+                                <a class="btn btn-default"
+                                   href="{{ reverse_url('admin_admins_edit', 'edit') }}?id={{ admin.id }}">编辑</a>
+                                <button type="button"
+                                        class="btn btn-default dropdown-toggle"
+                                        data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    {% if admin.state == 1 %}
+                                    <li>
+                                        <a href="###" class="btn-action"
+                                           data-action="suspend"
+                                           data-id="{{ admin.id }}">
+                                            禁止
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li>
+                                        <a href="###" class="btn-action"
+                                           data-action="active"
+                                           data-id="{{ admin.id }}">
+                                            恢复
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-footer">
+                {{ render_pagination(admins.pagination) }}
+            </div>
+        </div> <!-- panel-body end -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    (function () {
+        alertify.theme("bootstrap");
+        var app = new Vue({
+            el: "#vue-app",
+            data: function () {
+                return {}
+            },
+            created: function () {
+            },
+            ready: function () {
+                var Site = window.Site;
+                Site.run()
+
+                $("#search-form select").change(function () {
+                    $(this).parents("form").submit();
+                });
+            },
+            methods: {
+                pass: function (team_id) {
+
+                }
+            }
+        })
+    })();
+</script>
+{% endblock %}

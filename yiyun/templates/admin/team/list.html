@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% set page_title = "俱乐部管理" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "team" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page" id="vue-app">
+  <div class="page-header">
+    <h1 class="page-title">俱乐部管理</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li class="active">俱乐部管理</li>
+    </ol>
+    <div class="page-header-actions">
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="panel">
+      <div class="panel-heading">
+        <form action="" class="pull-left" id="search-form">
+        <label class="form-inline">俱乐部状态：
+          <select name="state" class="form-control input-sm">
+            <option value="-1">全部</option>
+            <option value="1" {% if handler.get_argument('state', '') == '1'%}selected="selected"{% endif %}>正常</option>
+            <option value="2" {% if handler.get_argument('state', '') == '0'%}selected="selected"{% endif %}>待审核</option>
+            <option value="0" {% if handler.get_argument('state', '') == '2'%}selected="selected"{% endif %}>关闭</option>
+          </select>
+        </label>
+        <label class="form-inline">排序：
+          <select name="sort" class="form-control input-sm">
+            <option value="">默认</option>
+            <option value="1" {% if handler.get_argument('sort', '') == '1'%}selected="selected"{% endif %}>创建时间</option>
+            <option value="2" {% if handler.get_argument('sort', '') == '2'%}selected="selected"{% endif %}>成员数量</option>
+            <option value="3" {% if handler.get_argument('sort', '') == '3'%}selected="selected"{% endif %}>活动数量</option>
+            <option value="4" {% if handler.get_argument('sort', '') == '4'%}selected="selected"{% endif %}>待提现金额</option>
+          </select>
+        </label>
+        </form>
+
+        <form class="panel-search-form pull-right" role="search">
+          <div class="input-search">
+            <i class="input-search-icon wb-search" aria-hidden="true"></i>
+            <input type="text" class="form-control" name="kw" value="{{ handler.get_argument('kw', '') }}" placeholder="搜索">
+            <!-- <i class="icon wb-loop"></i> -->
+          </div>
+        </form>
+      </div>
+      <div class="panel-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>城市</th>
+              <th>成员数量</th>
+              <th>活动数量</th>
+              <th>待提现</th>
+              <th>状态</th>
+              <th class="text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for team in teams %}
+            <tr id="item-{{ team.id }}">
+              <td>
+                <a href="#">{{ team.name }}</a>
+              </td>
+              <td>
+                  {{ team.province }} {{ team.city }}
+              </td>
+              <td>
+                  {{ team.members_count }}
+              </td>
+              <td>{{ team.activities_count }}</td>
+              <td>
+                {{ team.credit }}
+              </td>
+              <td>
+                <span class="label label-primary">{{ team.state_name }}</span>
+              </td>
+              <td class="text-center">
+                <div class="dropdown">
+                  <a href="#" class="dropdown-toggle" id="team-actions-{{team.id}}" data-toggle="dropdown" aria-expanded="false"><i class="icon wb-menu" ></i></a>
+                  <ul class="dropdown-menu dropdown-menu-primary" aria-labelledby="team-actions-{{team.id}}" role="menu">
+                    {% if team.state != 1 %}
+                    <li role="presentation"><a href="#" role="menuitem" @click="pass({{ team.id }})">通过审核</a></li>
+                    {#<li role="presentation"><a href="#" role="menuitem">拒绝审核</a></li>#}
+                    {% endif %}
+                    <li role="presentation">
+                        <a href="#">关闭</a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-footer">
+        {{ render_pagination(teams.pagination) }}
+      </div>
+    </div> <!-- panel-body end -->
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+(function(){
+    alertify.theme("bootstrap");
+    var app = new Vue({
+        el: "#vue-app",
+        data: function() {
+            return {
+                user_id: 0,
+                group_name: "",
+                groups: [],
+                error: ""
+            }
+        },
+        created: function(){
+        },
+        ready: function(){
+            var Site = window.Site;
+            Site.run()
+
+            $("#search-form select").change(function(){
+                $(this).parents("form").submit();
+            });
+        },
+        methods: {
+            pass: function(team_id){
+                var self = this
+
+                if(!confirm("确定审核通过此俱乐部？"))
+                    return
+
+                $.post("{{ reverse_url('admin_teams')}}", {action: "pass", team_id: team_id},
+                    function(data){
+                        location.reload()
+                    }, "json").fail(function(e){
+                        console.log(e.responseJSON)
+                        var error = e.responseJSON
+                        self.error = error['error']
+                    })
+            }
+        }
+    })
+})();
+</script>
+{% endblock %}

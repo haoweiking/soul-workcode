@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% set page_title = "编辑比赛" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "match" %}
+{% set site_submenu_active = "create" %}
+
+{% block body %}
+<div class="page" id="vue-app">
+  <div class="page-header">
+    <h1 class="page-title">编辑比赛</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('admin_matches') }}">赛事管理</a></li>
+      <li><a href="{{ reverse_url('admin_match_detail', match.id) }}">{{ match.title }}</a></li>
+      <li class="active">编辑比赛</li>
+    </ol>
+    <div class="page-header-actions">
+      <!-- <button type="submit" class="btn btn-primary">保存</button> -->
+    </div>
+  </div>
+  <div class="page-content container-fluid">
+    <div class="panel panel-bordered">
+      <div class="panel-body">
+        {% include "match/form.html" with context %}
+      </div>
+      <div class="panel-footer">
+        <p><button type="submit" @click="submit" class="btn btn-primary">保存</button></p>
+        <p>* 请填写所有标签页内容再保存</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% include "match/form_scripts.html" with context %}
+{% endblock %}

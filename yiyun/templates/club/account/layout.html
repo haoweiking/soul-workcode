@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% set page_title = "账户信息" %}
+{% set body_class = "page-account-profile" %}
+
+{% block styles %}
+<style>
+  .gear-icon {
+    color: #00ace5;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="fa fa-cog gear-icon" aria-hidden="true"></i>
+      账户设置
+    </h1>
+  </div>
+  <div class="page-content container-fluid">
+    <div class="panel">
+    <div class="panel-body">
+      <div class="nav-tabs-horizontal">
+        <ul class="nav nav-tabs nav-tabs-line">
+          <li class="{% if tab_active == 'profile' %}active{% endif %}"><a href="{{ reverse_url('club_account_profile') }}">基本资料</a></li>
+          <li class="hide"><a href="javascript:void(0)">认证信息</a></li>
+          <li class="{% if tab_active == 'change_password' %}active{% endif %}"><a href="{{ reverse_url('club_account_change_password') }}">修改密码</a></li>
+          <li class="{% if tab_active == 'change_mobile' %}active{% endif %}"><a href="{{ reverse_url('club_account_change_mobile') }}">修改手机</a></li>
+          <li class="{% if tab_active == 'change_email' %}active{% endif %}"><a href="{{ reverse_url('club_account_change_email') }}">修改邮箱</a></li>
+          <li class="hide"><a href="javascript:void(0)">消息设置</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active">
+            <div class="padding-top-25 col-sm-6">
+              {% include "shared/flashed_messages.html" %}
+              {% block content %}{% endblock %}
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

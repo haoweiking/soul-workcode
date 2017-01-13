@@ -1,0 +1,28 @@
+{% extends "club/info_layout.html" %}
+
+{% set site_menu_active = "" %}
+{% set site_submenu_active = "" %}
+{% set tab_active = "finance" %}
+
+{% block content %}
+<table class="table table-hover team-info-table">
+    <tr>
+        <th class="wd50">提现方式</th>
+        <td>{{ settings.cash_type or "-" }}</td>
+    </tr>
+    <tr>
+        <th>帐号</th>
+        <td>{{ settings.cash_account or "-" }}</td>
+    </tr>
+    <tr>
+        <th>账户姓名</th>
+        <td>{{ settings.cash_username or "-" }}</td>
+    </tr>
+</table>
+<a class="pull-right btn btn-primary" href="{{ reverse_url('club_settings_finance') }}">修改</a>
+{% endblock %}
+
+
+{% block scripts %}
+{% endblock %}
+

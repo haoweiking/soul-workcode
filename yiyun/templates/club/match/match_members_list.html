@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% set page_title = "报名成员列表" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "match" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+<style>
+    .dropdown-menu {
+        margin-top: 0;
+        padding: 0;
+    }
+    .dropdown-menu > li {
+        padding-left: 0;
+        padding-right: 0;
+        margin: 0;
+    }
+    .dropdown-menu > li > a {
+        padding: 0;
+        padding: 2px 8px;
+    }
+    .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+        background: #ddeffa;
+    }
+    .fa-futbol-o {
+        color: #a788d2;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <div class="page">
+        <div class="page-header" style="z-index: 999">
+            <h1 class="page-title">
+                <i class="fa fa-futbol-o" aria-hidden="true"></i>
+                报名成员列表
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+                <li><a href="{{ reverse_url('club_matches') }}">赛事管理</a></li>
+                <li><a href="{{ reverse_url('club_match_detail', match.id) }}">{{ match.title }}</a></li>
+                <li class="active">报名成员列表</li>
+            </ol>
+            <div class="page-header-actions">
+                <!-- <a href="#" class="btn btn-primary">退款订单</a> -->
+                <!-- <a href="{{ reverse_url('club_round_create', match.id) }}" class="btn btn-primary">发布动态</a> -->
+                <div class="btn-group text-right">
+                    <a href="#" class="dropdown-toggle btn btn-primary" data-toggle="dropdown" aria-expanded="false">
+                        导出报名成员列表
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="presentation">
+                            <a href="{{ reverse_url('club_export_matches_apply_form', match.id, 'all') }}" role="menuitem">
+                                导出全部成员
+                            </a>
+                        </li>
+                        <li role="presentation">
+                            <a href="{{ reverse_url('club_export_matches_apply_form', match.id, 'normal') }}" role="menuitem">
+                                导出正常参赛成员
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="panel">
+                <div class="panel-heading text-right">
+                    <form action="" class="pull-left" id="search-form">
+                        <label class="form-inline">分组：
+                            <select name="group_name"
+                                    class="form-control input-sm">
+                                <option value="">全部</option>
+                                {% for group in groups %}
+                                <option value="{{ group['name'] }}">
+                                    {{ group['name'] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </form>
+                    <div class="pull-right">总计: {{ sum_fee }}元</div>
+                    <!--div class="input-search">
+                        <i class="input-search-icon wb-search" aria-hidden="true"></i>
+                        <input type="text" class="form-control" name="kw" value="{{ handler.get_argument('kw', '') }}" placeholder="搜索">
+                        <i class="icon wb-loop"></i>
+                    </div-->
+                </div>
+                <div class="panel-body">
+                    <table class="table table-responsive">
+                        <thead>
+                            <tr>
+                                {% for option_info in match.option_info_list %}
+                                <th>{{ option_info.option_name }}</th>
+                                {% endfor %}
+                                <th>报名时间</th>
+                                <th>分组</th>
+                                <th>价格</th>
+                                <th>状态</th>
+                                <th class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for member in members %}
+                            <tr>
+                                {% for option_info in match.option_info_list %}
+                                    {% set option_value = option_info.get_option_value(member) %}
+                                    {% if option_info.is_avatar() %}
+                                        <td>
+                                        {% if option_value %}
+                                            <a target="_blank" href="{{ option_value['url'] + option_value['sizes'][1] }}">
+                                                <img style="width:60px" src="{{ option_value['url'] + option_value['sizes'][0] }}">
+                                            </a>
+                                        {% endif %}
+                                        </td>
+                                    {% elif option_info.is_photo() %}
+                                        <td>
+                                        {% if option_value %}
+                                            <a target="_blank" href="{{ option_value['url'] + option_value['sizes'][1] }}">
+                                                <img style="width:60px" src="{{ option_value['url'] + option_value['sizes'][0] }}">
+                                            </a>
+                                        {% endif %}
+                                        </td>
+                                    {% elif option_info.is_file() %}
+                                        <td>
+                                        {% if option_value %}
+                                            <a href="{{ option_value.get('url', '') }}">点击下载</a>
+                                        {% endif %}
+                                        </td>
+                                    {% elif option_info.is_idcard_photo() %}
+                                        <td>
+                                          {% if option_value and option_value['idcard_front'] and option_value['idcard_back'] %}
+                                            {% if "sizes" in option_value['idcard_front'] and "sizes" in option_value['idcard_back']  %}
+                                            <a target="_blank" href="{{ option_value['idcard_front']['url'] + option_value['idcard_front']['sizes'][2] }}">
+                                                <img style="width:40px" src="{{ option_value['idcard_front']['url'] + option_value['idcard_front']['sizes'][0] }}">
+                                            </a>
+                                            <a target="_blank" href="{{ option_value['idcard_back']['url'] + option_value['idcard_back']['sizes'][1]}}">
+                                                <img style="width:40px" src="{{ option_value['idcard_back']['url'] + option_value['idcard_back']['sizes'][0]}}">
+                                            </a>
+                                            {% endif %}
+                                        {% endif %}
+                                        </td>
+                                    {% elif option_info.is_leader_check() or option_info.is_boolean() %}
+                                        <td>{% if option_value %}是{% else %}否{% endif %}</td>
+                                    {% elif option_info.is_gender() %}
+                                        <td>{{ member.display_gender() }}</td>
+                                    {% else %}
+                                        <td>{{ option_value }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                                <td>{{ member.created }}</td>
+                                <td>{{ member.group.name }}</td>
+                                <td>{{ member.total_fee }}</td>
+                                <td>{{ member.state_name }}</td>
+                                <td class="text-center">
+                                    <div class="dropdown">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="icon wb-menu" ></i></a>
+                                        <ul class="dropdown-menu dropdown-menu-primary" role="menu">
+                                            {% if member.state == member.MatchMemberState.banned %}
+                                                <li role="presentation">
+                                                    <a href="javascript:void(0)" class="btn-action" data-id="{{ member.id }}"
+                                                       data-url="{{ reverse_url('club_match_members_list_action') }}" data-action="unban" role="menuitem" data-confirm="确定解除？"
+                                                       data-success="解除成功">解除禁赛</a>
+                                                </li>
+                                            {% else %}
+                                                <li role="presentation">
+                                                    <a href="javascript:void(0)" class="btn-action" data-id="{{ member.id }}"
+                                                       data-url="{{ reverse_url('club_match_members_list_action') }}" data-action="ban" role="menuitem" data-confirm="确定禁赛？"
+                                                       data-success="设置禁赛成功">禁赛</a>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                    {{ render_pagination(pagination) }}
+                </div>
+            </div> <!-- panel-body end -->
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ static_url('js/app.js') }}"></script>
+    <script type="text/javascript" src="{{ static_url('js/pages/match_members.js') }}"></script>
+{% endblock %}

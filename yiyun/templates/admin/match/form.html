@@ -1,0 +1,224 @@
+{% from "shared/macro.html" import render_field, render_field_error, render_form_error with context %}
+<form id="match-form" method="post" autocomplete="off" enctype="multipart/form-data" style="max-width: 720px">
+{{ render_form_error(form, "保存失败，请检查以下项目：")|safe }}
+<div class="nav-tabs-horizontal">
+  <ul class="nav nav-tabs" data-plugin="nav-tabs" role="tablist">
+    <li class="active" role="presentation"><a data-toggle="tab" href="#tab-basic" aria-controls="tab-basic" role="tab">基本信息</a></li>
+    <li role="presentation"><a data-toggle="tab" href="#tab-description" aria-controls="tab-description" role="tab">比赛说明</a></li>
+    <li role="presentation"><a data-toggle="tab" href="#tab-agenda" aria-controls="tab-agenda" role="tab">规程</a></li>
+    <li role="presentation"><a data-toggle="tab" href="#tab-requires" aria-controls="tab-apply-form" role="tab">报名要求</a></li>
+    <li role="presentation"><a data-toggle="tab" href="#tab-groups" aria-controls="tab-apply-form" role="tab">分组和费用</a></li>
+    <li role="presentation"><a data-toggle="tab" href="#tab-apply-form" aria-controls="tab-apply-form" role="tab">报名表单设置</a></li>
+  </ul>
+  <div class="tab-content padding-top-20">
+    <div class="tab-pane active" id="tab-basic" role="tabpanel">
+        <div class="form-group ">
+          {{ render_field(form.title) }}
+        </div>
+        <div class="row">
+          <div class="form-group col-sm-6">
+          {{ render_field(form.start_time) }}
+          </div>
+          <div class="form-group col-sm-6">
+          {{ render_field(form.end_time) }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-sm-6">
+          {{ render_field(form.join_start) }}
+          </div>
+          <div class="form-group col-sm-6">
+          {{ render_field(form.join_end) }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-sm-6">
+          {{ render_field(form.sport_id) }}
+          </div>
+          <div class="form-group col-sm-6">
+          {{ render_field(form.type) }}
+          </div>
+        </div>
+        <div class="form-group ">
+          {{ render_field(form.coverfile) }}
+        </div>
+        <div class="form-group ">
+          {{ render_field(form.reward) }}
+        </div>
+
+        <div class="row">
+          <div class="form-group col-sm-6">
+            {{ render_field(form.province) }}
+          </div>
+          <div class="form-group col-sm-6">
+            {{ render_field(form.city) }}
+          </div>
+        </div>
+        <div class="form-group {% if form.address.errors %}has-error{% endif %}">
+           {{ form.address.label(class="control-label") }}
+           <div class="{% if form.address.errors %}has-error{% endif %}">
+              {{ form.address(class="form-control")|safe }}
+           </div>
+          {% if form.address.errors %}
+              {% for error in form.address.errors %}
+              <span class="help-block error">{{ error }}</span>
+              {% endfor %}
+          {% endif %}
+          <div style="clear:both"></div>
+          <div id="map-container" class="map-container" style="margin-top:5px"></div>
+        </div>
+    </div>
+    <div class="tab-pane" id="tab-description" role="tabpanel">
+      <div class="row">
+          <div class="form-group col-sm-6">
+            {{ render_field(form.contact_person) }}
+          </div>
+          <div class="form-group col-sm-6">
+            {{ render_field(form.contact_phone) }}
+          </div>
+        </div>
+      <div class="form-group ">
+        {{ render_field(form.description, " form-control") }}
+      </div>
+    </div>
+    <div class="tab-pane" id="tab-agenda" role="tabpanel">
+        <div class="form-group ">
+          {{ render_field(form.rules, "textarea form-control") }}
+        </div>
+    </div>
+    <div class="tab-pane" id="tab-requires" role="tabpanel">
+      <div class="row">
+        <div class="form-group col-sm-4">
+          {{ render_field(form.join_type) }}
+        </div>
+        <div class="form-group col-sm-4">
+          {{ render_field(form.refund_type) }}
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane" style="margin-bottom:15px" id="tab-groups" role="tabpanel">
+
+      {% if match.can_change_goups() -%}
+      <div class="row">
+        <div class="form-group col-sm-4">
+          {{ render_field(form.group_type, attrs={"v-select": "group_type"}) }}
+        </div>
+      </div>
+      {% else %}
+      <div class="row">
+        <div class="form-group col-sm-4">
+          <strong>分组模式：</strong>{{ match.group_type_name }}
+        </div>
+      </div>
+      <input type="hidden" name="group_type" value="{{ match.group_type }}">
+      {%- endif %}
+
+      <div class="row" v-if="group_type==0">
+        <div class="form-group col-sm-4">
+          {{ render_field(form.price) }}
+        </div>
+        <div class="form-group col-sm-4">
+          {{ render_field(form.max_members) }}
+        </div>
+      </div>
+
+      <div class="form-inline" v-if="group_type==1">
+      {% raw -%}
+      <div v-for="group in groups" class="row" style="margin-left:10px;margin-bottom:10px;">
+        <div class="form-group">
+            <label class="control-label">组名</label>
+            <input class="form-control" name="group_name_{{ $index }}" type="text" :value="group.name">
+            <label class="control-label">报名费(元)</label>
+            <input class="form-control" style="width:80px;" name="group_price_{{ $index }}" type="text" :value="group.price">
+            <label class="control-label">数量限制</label>
+            <input class="form-control" style="width:80px;" name="group_max_{{ $index }}" type="text" :value="group.max">
+            <input type="hidden" name="group_id_{{ $index }}" :value="group.id">
+            <a v-if="$index==0 && groups.length<10 && can_change_goups" href="###" @click="addGroup">添加</a>
+            <a v-if="$index!=0 && can_change_goups" href="###" @click="removeGroup($index)">删除</a>
+        </div>
+      </div>
+      {%- endraw %}
+
+      <div class="has-error">{{ render_field_error(form.groups) }}</div>
+      </div>
+      <div class="clear"></div>
+    </div>
+    <div class="tab-pane" style="margin-bottom:15px" id="tab-apply-form" role="tabpanel">
+      <div class="form-group">
+        <label class="control-label">系统选项</label><br>
+        <div class="checkbox-custom checkbox-default checkbox-inline" style="margin-left:0;margin-right:10px">
+          <input type="checkbox" id="option_name" name="option_name" checked="" value="1" autocomplete="off" disabled="">
+          <label for="option_name">名称</label>
+        </div>
+        <div class="checkbox-custom checkbox-default checkbox-inline" style="margin-left:0;margin-right:10px">
+          <input type="checkbox" id="option_mobile" name="option_mobile" checked="" value="1" autocomplete="off" disabled="">
+          <label for="option_mobile">联系电话</label>
+        </div>
+        <div class="checkbox-custom checkbox-default checkbox-inline" style="margin-left:0;margin-right:10px">
+          <input type="checkbox" id="option_gender" name="option_gender" {% if "gender" in match.fields %}checked="checked"{% endif %} value="1" autocomplete="off">
+          <label for="option_gender">性别</label>
+        </div>
+        <div class="checkbox-custom checkbox-default checkbox-inline" style="margin-left:0;margin-right:10px">
+          <input type="checkbox" id="option_age" name="option_age" {% if "age" in match.fields %}checked="checked"{% endif %} value="1" autocomplete="off">
+          <label for="option_age">年龄</label>
+        </div>
+        <div class="checkbox-custom checkbox-default checkbox-inline" style="margin-left:0;margin-right:10px">
+          <input type="checkbox" id="option_avatar" name="option_avatar"{% if "avatar" in match.fields %}checked="checked"{% endif %} value="1" autocomplete="off">
+          <label for="option_avatar">头像</label>
+        </div>
+        <div class="checkbox-custom checkbox-default checkbox-inline" style="margin-left:0;margin-right:10px">
+          <input type="checkbox" id="option_idcard_number" name="option_idcard_number" {% if "idcard_number" in match.fields %}checked="checked"{% endif %} value="1" autocomplete="off">
+          <label for="option_idcard_number">证件号码</label>
+        </div>
+        <div class="checkbox-custom checkbox-default checkbox-inline" style="margin-left:0;margin-right:10px">
+          <input type="checkbox" id="option_idcard_photo" name="option_idcard_photo" {% if "idcard_photo" in match.fields %}checked="checked"{% endif %} value="1" autocomplete="off">
+          <label for="option_idcard_photo">证件照片</label>
+        </div>
+        <div class="checkbox-custom checkbox-default checkbox-inline" style="margin-left:0;margin-right:10px">
+          <input type="checkbox" id="option_is_leader" name="option_is_leader" {% if "is_leader" in match.fields %}checked="checked"{% endif %} value="1" autocomplete="off">
+          <label for="option_is_leader">是否为队长</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label">自定义选项</label>
+      </div>
+      <div class="form-inline">
+      {% raw -%}
+      <div v-for="option in options" class="row"  style="margin-left:10px;margin-bottom:10px;">
+        <div class="form-group">
+            <label class="control-label">名称</label>
+            <input class="form-control" name="custom_option-title-{{ $index }}" type="text" :value="option.title">
+            <label class="control-label">类型</label>
+            <select name="custom_option-field_type-{{ $index }}" v-model="option.field_type" class="form-control">
+              <option value="text">文本</option>
+              <option value="textarea">多行文本</option>
+              <option value="number">数字</option>
+              <option value="choice">单选</option>
+              <option value="photo">照片</option>
+            </select>
+            <label class="control-label">必填</label>
+            <select name="custom_option-required-{{ $index }}" v-model="option.required" class="form-control">
+              <option value="0">否</option>
+              <option value="1">是</option>
+            </select>
+            <label class="control-label">可选项</label>
+            <input class="form-control" name="custom_option-choices-{{ $index }}" type="text" :value="option.choices">
+            <input type="hidden" name="custom_option-id-{{ $index }}" :value="option.id">
+            <a v-if="$index==0 && options.length<10" href="###" @click="addOption">添加</a>
+            <a v-if="$index!=0" href="###" @click="removeOption($index)">删除</a>
+        </div>
+      </div>
+      {%- endraw %}
+      </div>
+      <div class="clear"></div>
+      * 单选和多选的可选项使用"|"间隔
+    </div>
+  </div>
+  </div>
+  <div class="form-group">
+      {{ form.lng()|safe }}
+      {{ form.lat()|safe }}
+      {{ form.formatted_address()|safe }}
+  </div>
+</form>

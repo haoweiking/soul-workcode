@@ -1,0 +1,20 @@
+{% extends "settings/layout.html" %}
+
+{% set site_menu_active = "settings" %}
+{% set site_submenu_active = "settings" %}
+{% set tab_active = "finance" %}
+
+{% block content %}
+
+{% from "shared/macro.html" import render_field with context %}
+<form method="post" autocomplete="off" enctype="multipart/form-data">
+  {% for field in form  %}
+  <div class="form-group">
+    {{ render_field(field) }}
+  </div>
+  {% endfor %}
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">保存</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% set page_title = "管理员管理" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "activity" %}
+{% set site_submenu_active = "new" %}
+
+{% block body %}
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">管理员管理</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('admin_admins') }}">管理员列表</a></li>
+      
+      {% if action == "edit" %}
+      <li class="active">编辑管理员</li>
+      {% else %}
+      <li class="active">添加管理员</li>
+      {% endif %}
+    </ol>
+  </div>
+  <div class="page-content container-fluid">
+    <div class="panel">
+      <div class="panel-body">
+        <div class="col-sm-6">
+            {% from "shared/macro.html" import render_field with context %}
+            <form method="post" autocomplete="off" enctype="multipart/form-data">
+            {% if action == "edit" %}
+            <div class="form-group">
+                <label class="control-label">用户名</label>
+                <p class="form-control-static"><strong>{{ admin.username }}</strong></p>
+            </div>
+            {% endif %}
+            {% for field in form  %}
+            <div class="form-group">
+                {{ render_field(field) }}
+            </div>
+            {% endfor %}
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+(function(document, window, $){
+    'use strict';
+
+    var Site = window.Site;
+    $(document).ready(function(){
+      Site.run();
+    })
+    
+ })(document, window, jQuery); 
+</script>
+{% endblock %}

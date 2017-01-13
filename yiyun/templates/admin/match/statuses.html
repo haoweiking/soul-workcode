@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% set page_title = "赛事动态" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "match" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">赛事动态</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('admin_matches') }}">赛事管理</a></li>
+        <li><a href="{{ reverse_url('admin_match_detail', match.id) }}">{{ match.title }}</a></li>
+      <li class="active">赛事动态</li>
+    </ol>
+    <div class="page-header-actions">
+      <a href="{{ reverse_url('admin_match_statuses_add', match.id) }}" class="btn btn-primary">发布动态</a>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="panel">
+      <div class="panel-heading">
+      </div>
+      <div class="panel-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>内容</th>
+              <th style="width:120px">时间</th>
+              <th style="width:120px" class="text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for status in statuses %}
+            <tr id="item-{{ match.id }}">
+              <td>
+                {{ status.content }}
+              </td>
+              <td>
+                 {{ status.created }}
+              </td>
+              <td class="text-center">
+                <div class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="icon wb-menu" ></i></a>
+                  <ul class="dropdown-menu dropdown-menu-primary" role="menu">
+                    <li role="presentation"><a href="{{ reverse_url('admin_match_statuses_edit', match.id, status.id) }}" role="menuitem">编辑</a></li>
+                    <li role="presentation">
+                      <a href="javascript:void(0)" class="btn-action" data-id="{{ status.id }}"
+                        data-url="{{ reverse_url('admin_match_statuses_list_action') }}" data-action="delete" role="menuitem" data-confirm="确定删除？"
+                        data-success="删除动态成功">删除</a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-footer">
+        {{ render_pagination(statuses.pagination) }}
+      </div>
+    </div> <!-- panel-body end -->
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_url('js/app.js') }}"></script>
+<script type="text/javascript" src="{{ static_url('js/pages/match_statuses.js') }}"></script>
+{% endblock %}

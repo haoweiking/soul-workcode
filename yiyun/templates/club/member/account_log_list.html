@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% set page_title = "消费/充值记录" %}
+{% set body_class = "app-member_account_logs" %}
+{% set site_menu_active = "member" %}
+{% set site_submenu_active = "members" %}
+
+{% block styles %}
+{% endblock %}
+
+{% block body %}
+<div class="page bg-white animsition">
+  <div class="page-main">
+    <div class="page-header">
+      <h1 class="page-title">消费/充值记录</h1>
+      <div class="page-header-actions">
+      </div>
+    </div>
+    <div class="page-content page-content-table">
+      <table class="table is-indent tablesaw" data-tablesaw-mode="stack" data-plugin="animateList"
+        data-animate="fade" data-child="tr" data-selectable="selectable">
+          <thead>
+            <tr>
+              <th class="pre-cell"></th>
+              <th class="cell-30" scope="col" data-tablesaw-sortable-col data-tablesaw-priority="3">
+                <span class="checkbox-custom checkbox-primary checkbox-lg contacts-select-all">
+                  <input type="checkbox" class="contacts-checkbox selectable-all" id="select_all"/>
+                  <label for="select_all"></label>
+                </span>
+              </th>
+              <th class="cell-300" scope="col" data-tablesaw-sortable-col data-tablesaw-priority="3">用户</th>
+              <th scope="col" data-tablesaw-sortable-col data-tablesaw-priority="4">活动</th>
+              <th class="col" scope="col" data-tablesaw-sortable-col data-tablesaw-priority="3">余额变化</th>
+              <th scope="col" data-tablesaw-sortable-col data-tablesaw-priority="4">免费次数变化</th>
+              <th scope="col" data-tablesaw-sortable-col data-tablesaw-priority="4">变化类型</th>
+              <th scope="col" data-tablesaw-sortable-col data-tablesaw-priority="4">变化前</th>
+              <th scope="col" data-tablesaw-sortable-col data-tablesaw-priority="4">变化后</th>
+              <th scope="col" data-tablesaw-sortable-col data-tablesaw-priority="4">备注</th>
+              <th class="suf-cell"></th>
+            </tr>
+            {% for log in logs %}
+            <tr>
+              <td class="pre-cell"></td>
+              <td class="cell-30">
+                <span class="checkbox-custom checkbox-primary checkbox-lg">
+                  <input type="checkbox" class="contacts-checkbox selectable-item" id="contacts_1"/>
+                  <label for="contacts_1"></label>
+                </span>
+                <td>{{ log.user_id }}</td>
+                <td>{{ log.activity_id }}</td>
+                <td>{{ log.credit_change }}</td>
+                <td>{{ log.free_times_change }}</td>
+                <td>{{ log.change_type }}</td>
+                <td>{{ log.credit_before }}</td>
+                <td>{{ log.credit_after }}</td>
+                <td>{{ log.note }}</td>
+              </td>
+              <td class="suf-cell"></td>
+            </tr>
+            {% endfor %}
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

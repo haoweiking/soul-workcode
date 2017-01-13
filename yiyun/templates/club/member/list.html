@@ -1,0 +1,474 @@
+{% extends "base.html" %}
+
+{% set page_title = "成员管理" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "member" %}
+{% set site_submenu_active = "members" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page" id="vue-app">
+  <div class="page-header">
+    <h1 class="page-title">
+        成员管理
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li class="active">成员管理</li>
+    </ol>
+    <div class="page-header-actions">
+      <!-- <a href="{{ reverse_url('club_activities_refunded_orders') }}" class="btn btn-primary">加入请求</a> -->
+      <!-- <a href="{{ reverse_url('club_activity_create') }}" class="btn btn-primary">导入成员</a> -->
+      <a href="{{ reverse_url('club_member_groups') }}" class="btn btn-primary">分组管理</a>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="panel">
+      <div class="panel-heading">
+        <form action="" class="pull-left" id="search-form">
+        <label class="form-inline">成员分组：
+          <select name="group" class="form-control input-sm">
+            <option value="">全部</option>
+            {% for group in groups %}
+            <option value="{{ group.name }}" {% if handler.get_argument('group', '') == group.name %}selected="selected"{% endif %}>{{ group.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        </form>
+
+        <form class="panel-search-form pull-right" role="search">
+          <div class="input-search">
+            <i class="input-search-icon wb-search" aria-hidden="true"></i>
+            <input type="text" class="form-control" name="kw" value="{{ handler.get_argument('kw', '') }}" placeholder="搜索">
+            <!-- <i class="icon wb-loop"></i> -->
+          </div>
+        </form>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>姓名</th>
+              <th>昵称</th>
+              <th>性别</th>
+              <th>年龄</th>
+              <th>电话</th>
+              <th>分组</th>
+              <th>余额</th>
+              <th>次卡</th>
+              <th>加入时间</th>
+              <th>状态</th>
+              <th class="text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for member in members %}
+            <tr id="item-{{ member.user.id }}">
+              <td>
+                 <a href="{{ reverse_url('club_member_detail', member.user_id) }}">{{ member.name or member.user.name }}</a>
+              </td>
+              <td>
+                {{ member.nickname or member.user.name }}</a>
+              </td>
+              <td>
+                  {{ member.user.gender_name }}
+              </td>
+              <td>
+                  {{ member.user.age }}
+              </td>
+              <td>
+                  {{ member.user.mobile }}
+              </td>
+              <td>
+                  {{ member.group_name }}
+              </td>
+              <td>
+                {{ member.credit }}
+              </td>
+              <td>
+                  {{ member.free_times }}
+              </td>
+              <td>
+                  {{ member.joined }}
+              </td>
+              <td>
+                  {{ member.state_name }}
+              </td>
+              <td class="text-center">
+                <div class="dropdown">
+                  <a href="#" class="dropdown-toggle" id="activity-actions-{{member.user_id}}" data-toggle="dropdown" aria-expanded="false"><i class="icon wb-menu" ></i></a>
+                  <ul class="dropdown-menu dropdown-menu-primary" aria-labelledby="activity-actions-{{member.user_id}}" role="menu">
+                    <li role="presentation"><a href="{{ reverse_url('club_member_detail', member.user_id) }}" role="menuitem">查看</a></li>
+                    {% if member.is_pending() %}
+                    <li role="presentation"><a href="#" role="menuitem" @click="apply({{member.user_id}})">批准加入</a></li>
+                    {% elif member.is_normal() %}
+                    <li role="presentation"><a href="#" role="menuitem" @click="recharge({{member.user_id}}, '{{ member.nickname or member.user.name or member.user.mobile }}')">充值</a></li>
+                    <li role="presentation"><a href="#" role="menuitem" @click="deduction({{member.user_id}}, '{{ member.nickname or member.user.name or member.user.mobile }}')">扣费</a></li>
+                    <li role="presentation"><a href="#" role="menuitem" @click="modifyGroup({{member.user_id}}, '{{member.group_name}}')">修改分组</a></li>
+                    <li class="divider" role="presentation"></li>
+                    <li role="presentation"><a href="#" role="menuitem" @click="removeMember({{member.user_id}})">踢出</a></li>
+                    {% elif member.is_blocked() %}
+                    <li class="divider" role="presentation"></li>
+                    <li role="presentation"><a href="#" role="menuitem">取消黑名单</a></li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <div class="panel-footer">
+        {{ render_pagination(members.pagination) }}
+      </div>
+    </div> <!-- panel-body end -->
+  </div>
+
+  {% raw %}
+  <!-- Group Modal -->
+  <div class="modal fade" id="group-modal" aria-hidden="false" aria-labelledby="" role="dialog" tabindex="-1">
+  <div class="modal-dialog">
+      <form class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+          </button>
+          <h4 class="modal-title">修改成员分组</h4>
+      </div>
+      <div class="modal-body">
+          <div class="row">
+              <div class="col-lg-12 form-group" v-bind:class="{'has-error': error}">
+                  <label for="">新分组：</label>
+                  <select class="form-control" v-model="group_name">
+                      <option value="{{ group.name }}" v-for="group in groups">{{ group.name }}</option>
+                  </select>
+                  <div class="help-block" v-show="error">{{ error }}</div>
+              </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+          <button class="btn btn-primary" @click="saveGroup" type="button">保存</button>
+      </div>
+      </form>
+  </div>
+  </div>
+  <!-- End Group Modal -->
+  {% endraw %}
+
+  <recharge-modal :member.sync="currentMember"></recharge-modal>
+  <deduction-modal :member.sync="currentMember"></deduction-modal>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% raw -%}
+<script type="text/template" id="recharge-modal-tpl">
+<div class="modal fade" id="recharge-modal" aria-hidden="false" aria-labelledby="" role="dialog" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+          </button>
+          <h4 class="modal-title">给 {{ member.username }} 充值</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="alert alert-danger alert-dismissible" role="alert" v-show="error">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            {{ error }}
+          </div>
+          <div class="col-lg-12 form-group">
+              <label class="col-sm-3 control-label">充余额：</label>
+              <div class="col-sm-9">
+                <input class="form-control" style="width:80px" type="text" v-model="member.amount">
+              </div>
+          </div>
+          <div class="col-lg-12 form-group">
+              <label class="col-sm-3 control-label">充次卡：</label>
+              <div class="col-sm-9">
+                <input class="form-control" style="width:80px" type="text" v-model="member.freetimes">
+              </div>
+          </div>
+          <div class="col-lg-12 form-group">
+              <label class="col-sm-3 control-label">备注：</label>
+              <div class="col-sm-9">
+                <input class="form-control" type="text" v-model="member.remark">
+              </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+          <button class="btn btn-primary" @click="submitRecharge" type="button">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/template" id="deduction-modal-tpl">
+<div class="modal fade" id="deduction-modal" aria-hidden="false" aria-labelledby="" role="dialog" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+          </button>
+          <h4 class="modal-title">给 {{ member.username }} 扣费</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="alert alert-danger alert-dismissible" role="alert" v-show="error">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            {{ error }}
+          </div>
+          <div class="col-lg-12 form-group">
+              <label class="col-sm-3 control-label">扣除余额：</label>
+              <div class="col-sm-9">
+                <input class="form-control" style="width:80px" type="text" v-model="member.amount">
+              </div>
+          </div>
+          <div class="col-lg-12 form-group">
+              <label class="col-sm-3 control-label">扣除次卡：</label>
+              <div class="col-sm-9">
+                <input class="form-control" style="width:80px" type="text" v-model="member.freetimes">
+              </div>
+          </div>
+          <div class="col-lg-12 form-group">
+              <label class="col-sm-3 control-label">备注：</label>
+              <div class="col-sm-9">
+                <input class="form-control" type="text" v-model="member.remark">
+              </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+          <button class="btn btn-primary" @click="submit" type="button">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+{%- endraw %}
+<script type="text/javascript" charset="utf-8">
+(function(){
+    alertify.theme("bootstrap");
+
+    Vue.component('recharge-modal', {
+      template: '#recharge-modal-tpl',
+      data: function(){
+        return {
+          error: ""
+        }
+      },
+      props: {
+        member: Object
+      },
+      ready: function(){
+        var self = this
+        $('#recharge-modal').on('show.bs.modal', function (e) {
+            self.error = ""
+        })
+      },
+      methods: {
+        submitRecharge: function(){
+          this.error = ""
+          if (parseInt(this.member.amount) == 0 && parseInt(this.member.freetimes) == 0) {
+            this.error = "请填写充值金额或次卡数量"
+          } else if (parseInt(this.member.amount) < 0 || parseInt(this.member.freetimes) < 0) {
+            this.error = "充值金额和次卡数量不能小于零"
+          } else if (!this.member.remark || this.member.remark.length == 0) {
+            this.error = "请填写备注"
+          } else {
+            this.postRecharge()
+          }
+        },
+        postRecharge: function(){
+          var self = this
+            $.post("{{ reverse_url('club_members') }}", {
+                action: "recharge", 
+                user_id: this.member.user_id, 
+                amount: this.member.amount,
+                freetimes: this.member.freetimes,
+                remark: this.member.remark
+            }, 
+            function(data){
+                $('#group-modal').modal('hide')
+                location.reload()
+            }, "json").fail(function(e){
+                console.log(e.responseJSON)
+                var error = e.responseJSON
+                self.error = error['error']
+            })
+        }
+      }
+    })
+
+    Vue.component('deduction-modal', {
+      template: '#deduction-modal-tpl',
+      data: function(){
+        return {
+          error: ""
+        }
+      },
+      props: {
+        member: Object
+      },
+      ready: function(){
+        var self = this
+        $('#deduction-modal').on('show.bs.modal', function (e) {
+            self.error = ""
+        })
+      },
+      methods: {
+        submit: function(){
+          this.error = ""
+          if (parseInt(this.member.amount) == 0 && parseInt(this.member.freetimes) == 0) {
+            this.error = "请填写扣除金额或次卡数量"
+          } else if (parseInt(this.member.amount) < 0 || parseInt(this.member.freetimes) < 0) {
+            this.error = "扣除金额和次卡数量不能小于零"
+          } else if (!this.member.remark || this.member.remark.length == 0) {
+            this.error = "请填写备注"
+          } else {
+            this.post()
+          }
+        },
+        post: function(){
+          var self = this
+            $.post("{{ reverse_url('club_members') }}", {
+                action: "deduction", 
+                user_id: this.member.user_id, 
+                amount: this.member.amount,
+                freetimes: this.member.freetimes,
+                remark: this.member.remark
+            },
+            function(data){
+                $('#group-modal').modal('hide')
+                location.reload()
+            }, "json").fail(function(e){
+                console.log(e.responseJSON)
+                var error = e.responseJSON
+                self.error = error['error']
+            })
+        }
+      }
+    })
+
+    var app = new Vue({
+        el: "#vue-app",
+        data: function() {
+            return {
+                user_id: 0,
+                group_name: "",
+                groups: [],
+                error: "",
+                currentMember: {
+                  username: "",
+                  user_id: 0,
+                  amount: 0,
+                  freetimes: 0,
+                  remark: ""
+                }
+            }
+        },
+        created: function(){
+           var groups = {{ json_encode(groups_json)|safe }}
+           
+           groups.splice(0, 0, {
+               id: 0,
+               name: "未分组"
+           })
+           
+           this.groups = groups
+        },
+        ready: function(){
+            var self = this
+            $('#group-modal').on('hidden.bs.modal', function (e) {
+                self.error = ""
+            })
+            
+            var Site = window.Site;
+            Site.run()
+            
+            $("#search-form select").change(function(){
+                $(this).parents("form").submit();
+            });
+        },
+        methods: {
+            modifyGroup: function(user_id, group_name) {
+                this.user_id = user_id
+                this.group_name = (group_name == "未分组" || group_name=="") ? "未分组" : group_name
+                $("#group-modal").modal()
+            },
+            saveGroup: function(){
+                var self = this
+
+                $.post("{{ reverse_url('club_members')}}", {action:"change_group", user_id: this.user_id, group_name: this.group_name}, 
+                function(data){
+                    $('#group-modal').modal('hide')
+                    location.reload()
+                }, "json").fail(function(e){
+                    console.log(e.responseJSON)
+                    var error = e.responseJSON
+                    self.error = error['error']
+                })
+            },
+            apply: function(user_id) {
+                $.post("{{ reverse_url('club_members')}}", {action:"apply", user_id: user_id})
+                 .done(function(){
+                    location.reload()
+                 }).fail(function(e) {
+                     var res = e.responseJSON
+                    alertify.okBtn('确认').alert(res['error'])
+                 })
+            },
+            removeMember: function(user_id) {
+                alertify.okBtn("确认")
+                    .cancelBtn("取消")
+                    .confirm("确认移除此成员？", function () {
+                        $.post("{{ reverse_url('club_members')}}",{action: "remove_member", user_id: user_id}).done(function() {
+                            location.reload()
+                        }).fail(function(e){
+                            console.log(e.responseJSON)
+                            var error = e.responseJSON
+                            alertify.okBtn("确认").alert(error['error']);
+                            //alert(error['error'])
+                        });
+                }, function() {
+                });
+            },
+            recharge: function (user_id, username) {
+              this.currentMember = {
+                user_id: user_id,
+                username: username,
+                amount: 0,
+                freetimes: 0,
+                remark: "",
+              }
+              $("#recharge-modal").modal()
+            },
+            deduction: function (user_id, username) {
+              this.currentMember = {
+                user_id: user_id,
+                username: username,
+                amount: 0,
+                freetimes: 0,
+                remark: "",
+              }
+              $("#deduction-modal").modal()
+            }
+        }
+    })
+})();
+</script>
+{% endblock %}

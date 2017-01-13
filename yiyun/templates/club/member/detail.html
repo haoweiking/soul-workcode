@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% set page_title = "成员管理" %}
+{% set body_class = "page-profile site-menubar-unfold" %}
+{% set site_menu_active = "member" %}
+{% set site_submenu_active = "members" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/profile.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page animsition" id="vue-app">
+  <div class="page-header">
+    <h1 class="page-title">成员管理</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('club_members') }}">成员管理</i></a></li>
+      <li class="active">成员信息</li>
+    </ol>
+    <div class="page-header-actions">
+    </div>
+  </div>
+    <div class="page-content container-fluid">
+      <div class="row">
+        <div class="col-md-3">
+          <!-- Page Widget -->
+          <div class="widget widget-shadow text-center">
+            <div class="widget-header">
+              <div class="widget-header-content">
+                <a class="avatar avatar-lg" href="javascript:void(0)">
+                  <img data-src="{{ user.get_avatar_url() or 'holder.js/130x130?text=%s&auto=yes' % (user.member.nickname or user.name or "U")[0].upper() }}" alt="...">
+                </a>
+                <h4 class="profile-user">{{ user.member.nickname or user.name }}</h4>
+                {#<p class="profile-job"></p>#}
+                <p></p>
+                {#<button type="button" class="btn btn-danger">踢出</button>#}
+              </div>
+            </div>
+            <div class="widget-footer">
+              <div class="row no-space">
+                <div class="col-xs-4">
+                  <strong class="profile-stat-count">{{ user.member.credit }}</strong>
+                  <span>余额</span>
+                </div>
+                <div class="col-xs-4">
+                  <strong class="profile-stat-count">{{ user.member.free_times }}</strong>
+                  <span>次卡</span>
+                </div>
+                <div class="col-xs-4">
+                  <strong class="profile-stat-count">0</strong>
+                  <span>积分</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End Page Widget -->
+        </div>
+        <div class="col-md-9">
+          <!-- Panel -->
+          <div class="panel">
+            <div class="panel-body nav-tabs-animate">
+              <ul class="nav nav-tabs nav-tabs-line">
+                <li v-bind:class="{'active': currentTab=='activities'}"><a href="#activities" @click="toggleTab('activities')">参加的活动</a></li>
+                <li v-bind:class="{'active': currentTab=='account_logs'}"><a href="#account_logs" @click="toggleTab('account_logs')">账户变更记录</a></li>
+                <li v-bind:class="{'active': currentTab=='orders'}"><a href="#orders" @click="toggleTab('orders')">订单记录</a></li>
+              </ul>
+              <div class="tab-content">
+                 {% raw %}
+                <div v-show="currentTab=='activities'" class="tab-pane" id="activities" v-bind:class="{ 'active': currentTab=='activities'}">
+                  <table class="table table-bordered margin-top-15">
+                      <thead>
+                          <tr>
+                              <th>活动名称</th>
+                              <th>活动时间</th>
+                              <th>报名时间</th>
+                              <th>报名人数</th>
+                              <th>使用余额</th>
+                              <th>使用次卡</th>
+                              <th>支付费用</th>
+                              <th>支付状态</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr v-for="activity in activities">
+                              <td>{{ activity.title }}</td>
+                              <td>{{ activity.start_time }}</td>
+                              <td>{{ activity.member.created }}</td>
+                              <td>{{ activity.member.users_count }}</td>
+                              <td>{{ activity.order.credit_fee }}</td>
+                              <td>{{ activity.member.free_times }}</td>
+                              <td>{{ activity.order.total_fee }}</td>
+                              <td>
+                                  <span class="label label-success">{{ activity.order.state_name }}</span>
+                              </td>
+                          </tr>
+                      </tbody>
+                  </table>
+                  <a class="btn btn-block btn-default profile-readMore" href="javascript:void(0)" @click="loadActivities()">{{ loadActivitiesState }}</a>
+                </div>
+                <div v-show="currentTab=='account_logs'" class="tab-pane" id="account_logs" v-bind:class="{ 'active': currentTab=='account_logs'}">
+                  <table class="table table-bordered margin-top-15">
+                      <thead>
+                          <tr>
+                              <th>时间</th>
+                              <th>类型</th>
+                              <th>余额变更</th>
+                              <th>备注</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr v-for="log in logs">
+                              <td>{{ log.created }}</td>
+                              <td>{{ log.change_type_name }}</td>
+                              <td>{{ log.credit_change }}</td>
+                              <td>{{ log.note }}</td>
+                          </tr>
+                      </tbody>
+                  </table>
+                  <a class="btn btn-block btn-default profile-readMore" href="javascript:void(0)" @click="loadAccountLogs()">{{ loadAccountLogsState }}</a>
+                </div>
+                <div v-show="currentTab=='orders'" class="tab-pane" id="orders" v-bind:class="{ 'active': currentTab=='orders'}">
+                <table class="table table-bordered margin-top-15">
+                    <thead>
+                        <tr>
+                            <th>订单号</th>
+                            <th>标题</th>
+                            <th>类型</th>
+                            <th>总金额</th>
+                            <th>余额支付</th>
+                            <th>在线支付</th>
+                            <th>支付方式</th>
+                            <th>订单状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="order in orders">
+                            <td>{{ order.order_no }}</td>
+                            <td>{{ order.title }}</td>
+                            <td>{{ order.order_type_name }}</td>
+                            <td>{{ order.total_fee }}</td>
+                            <td>{{ order.credit_fee }}</td>
+                            <td>{{ order.payment_fee }}</td>
+                            <td>{{ order.payment_method_name }}</td>
+                            <td>
+                                <span class="label label-success">{{ order.state_name }}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                  </table>
+                  <a class="btn btn-block btn-default profile-readMore" href="javascript:void(0)" @click="loadOrders">{{ loadOrdersState }}</a>
+                </div>
+                {% endraw %}
+              </div>
+            </div>
+          </div>
+          <!-- End Panel -->
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock%}
+
+
+{% block scripts %}
+<script type="text/javascript" charset="utf-8">
+(function(){
+
+    var PERPAGE = 20
+
+    var Site = window.Site;
+    $(document).ready(function(){
+        Site.run();
+    });
+
+    alertify.theme("bootstrap");
+    var app = new Vue({
+        el: "#vue-app",
+        data: function() {
+            return {
+                currentTab: "activities",
+                activitiesPage: 0,
+                activities: [],
+                loadActivitiesState: "加载更多",
+                accountLogsPage: 0,
+                accountLogs:[],
+                loadAccountLogsState: "加载更多",
+                ordersPage: 0,
+                orders:[],
+                loadOrdersState: "加载更多",
+            }
+        },
+        ready: function(){
+            this.loadActivities()
+        },
+        methods: {
+            toggleTab: function(tab){
+                this.currentTab = tab
+                console.log(this.currentTab)
+
+                if (this.currentTab == "activities" && this.activitiesPage==0) {
+                    this.loadAccountLogs()
+                }
+
+                if (this.currentTab == "account_logs" && this.accountLogsPage==0) {
+                    this.loadAccountLogs()
+                }
+
+                console.log(this.ordersPage, this.currentTab)
+                if (this.currentTab == "orders" && this.ordersPage==0) {
+                    this.loadOrders()
+                }
+
+                return false
+            },
+            loadActivities: function(){
+                this.activitiesPage++
+                this.getActivities(this.activitiesPage)
+                return false
+            },
+            getActivities: function(page) {
+                var self = this
+                this.loadActivitiesState = "正在加载"
+                $.get("{{ reverse_url('club_members_activities', user.id) }}", {page:page}, function(data){
+                    self.loadActivitiesState = "加载更多"
+                    if (data.activities.length == 0) {
+                      self.loadAccountLogsState = "没有了"
+                      self.activitiesPage = page-1
+                    } else {
+                      for(var i=0; i<data.activities.length; i++){
+                        self.activities.push(data.activities[i])
+                      }
+                      if (data.activities.length < PERPAGE) {
+                        self.loadActivitiesState = "没有了"
+                      } else {
+                        self.loadActivitiesState = "加载更多"
+                      }
+                    }
+                }, "json")
+            },
+            loadAccountLogs: function(){
+                this.accountLogsPage++
+                this.getAccountLogs(this.accountLogsPage)
+                return false
+            },
+            getAccountLogs: function(page) {
+                var self = this
+                this.loadAccountLogsState = "正在加载"
+                $.get("{{ reverse_url('club_members_account_logs', user.id) }}", {page:page}, function(data){
+                    if (data.account_logs.length == 0) {
+                      self.loadAccountLogsState = "没有了"
+                      self.accountLogsPage = page-1
+                    } else {
+                      for(var i=0; i<data.account_logs.length; i++){
+                        self.accountLogs.push(data.account_logs[i])
+                      }
+                      if (data.account_logs.length < PERPAGE) {
+                        self.loadAccountLogsState = "没有了"
+                      } else {
+                        self.loadAccountLogsState = "加载更多"
+                      }
+                    }
+                }, "json")
+            },
+            loadOrders: function(){
+                this.ordersPage++
+                this.getOrders(this.ordersPage)
+                return false
+            },
+            getOrders: function(page) {
+                var self = this
+                this.loadOrdersState = "正在加载"
+                $.get("{{ reverse_url('club_members_orders', user.id) }}", {page:page}, function(data){
+                    if (data.orders.length == 0) {
+                        self.loadOrdersState = "没有了"
+                        self.ordersPage=page-1
+                    } else {
+                      for(var i=0; i<data.orders.length; i++){
+                        self.orders.push(data.orders[i])
+                      }
+                      if (data.orders.length < PERPAGE) {
+                        self.loadOrdersState = "没有了"
+                      } else {
+                        self.loadOrdersState = "加载更多"
+                      }
+                    }
+                }, "json")
+            }
+        }
+    })
+})();
+</script>
+{% endblock %}

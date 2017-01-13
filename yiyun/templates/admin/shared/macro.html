@@ -1,0 +1,107 @@
+{% macro render_field_error(field) -%}
+    {% if field.errors %}
+        {% for error in field.errors %}
+            <span class="help-block">{{ error }}</span>
+        {% endfor %}
+    {% elif field.description %}
+        {% if field.description %}<span class="help-block">{{ field.description }}</span>{% endif %}
+    {% endif %}
+{%- endmacro %}
+
+{% macro render_field_label(field) -%}
+    {{ field.label(class="control-label") }}
+{%- endmacro %}
+
+{% macro render_form_error(form, title) -%}
+    {% if form.errors -%}
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+            <h4>{{ title }}</h4>
+            <ul>
+                {% for field in form -%}
+                    {% if field.errors -%}
+                        {% for error in field.errors -%}
+                            <li>{{ field.label }}{{ error }}</li>
+                        {% endfor %}
+                    {%- endif %}
+                {%- endfor %}
+            </ul>
+        </div>
+    {%- endif %}
+{%- endmacro %}
+
+{% macro render_field(field, class_="", attrs={}) -%}
+    <div class="form-group {% if field.errors %}has-error{% endif %}">
+        {% if field.type == "BooleanField" %}
+            {{ field.label(class="control-label") }}
+            {{ field(**{"data-plugin": "switchery"}) }}
+
+        {% elif field.type == 'RadioField' %}
+            {{ field.label(class="control-label") }}
+            {{ field(class='radio-group')|safe }}
+
+        {% elif field.type == 'DateTimeField' %}
+            {{ field.label(class="control-label") }}
+            {{ field(class='form-control datetime-widget')|safe }}
+
+        {% elif field.type == 'DateField' %}
+            {{ field.label(class="control-label") }}
+            {{ field(class='form-control date-widget')|safe }}
+
+        {% elif field.type == 'TimeField' %}
+            {{ field.label(class="control-label") }}
+            {{ field(class='form-control time-widget', readonly="readonly")|safe }}
+
+        {% elif field.type in ('SelectField', 'ModelSelectField', 'WPSelectField',
+  'SelectChoicesField', 'SelectMultipleField') %}
+            {{ field.label(class="control-label") }}
+            {% set attrs = merge_dict(attrs, {"data-plugin": "select2"}) %}
+
+            {{ field(**attrs)|safe }}
+
+        {% elif field.type in ('TextAreaField', ) %}
+            {{ field.label(class="control-label") }}
+            {{ field(class=class_ or "form-control", rows=8)|safe }}
+
+        {% elif field.type == "HiddenField" %}
+            {{ field()|safe }}
+        {% else %}
+            {{ field.label(class="control-label") }}
+            {{ field(class=class_ or "form-control")|safe }}
+
+        {% endif %}
+        {% if field.errors and field.type != "HiddenField" %}
+            {% for error in field.errors -%}
+                <span class="help-block">
+            {{ error }}
+          </span>
+            {% endfor %}
+        {% elif field.description %}
+            {% if field.description -%}<span class="help-block">{{ field.description }}</span>{% endif %}
+        {% endif %}
+    </div>
+{%- endmacro %}
+
+{% macro render_form(form) %}
+    {% for field in form %}
+        <div class="form-group {% if field.errors %} has-error{% endif %}">
+            {{field.label(class_="control-label")|safe }}
+            {{ field(class_='form-control') }}
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            {% else %}
+                {% if field.description %}
+                    <span class="help-block">
+                        {{ field.description|safe }}
+                    </span>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endmacro %}
+
+

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% set page_title = "微信账号" %}
+{% set body_class = "page-account-profile" %}
+{% set site_menu_active = "settings" %}
+{% set site_submenu_active = "weixin" %}
+
+{% block styles %}
+<style>
+  .desc-table th, td{
+    text-align: center;
+  }
+  .desc-table td {
+    color: #a0a0a0;
+  }
+  .item {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  .item:last-child {
+    margin-bottom: 0;
+  }
+  .weixin-bind-btn {
+    font-size: 15px;
+  }
+  .weixin-logo {
+    font-size: 18px;
+    margin-right: 12px;
+  }
+  .desc-list {
+    padding-left: 20px;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="page-content container-fluid">
+    <div class="panel">
+      <div class="panel-body">
+        <div class="item">
+          <h4>绑定微信公众号，把俱乐部和微信打通</h4>
+          <a class="btn btn-primary weixin-bind-btn" href="{{ reverse_url('club_wxmp_bind') }}">
+            <i class="fa fa-weixin weixin-logo" aria-hidden="true"></i>我有微信公众号，马上绑定
+          </a>
+        </div>　
+
+        <div class="item">
+          <h5>说明:</h5>
+          <ul class="desc-list">
+            <li>一个帐号只能与一个俱乐部绑定</li>
+            <li>帐号绑定后不支持解除绑定</li>
+          </ul>
+        </div>
+
+        <div class="item">
+          <h5>功能支持</h5>
+          <table class="table table-condensed table-bordered desc-table">
+            <tr>
+              <th></th>
+              <th>未认证订阅号</th>
+              <th>认证订阅号</th>
+              <th>未认证服务号</th>
+              <th>认证服务号</th>
+            </tr>
+            <tr>
+              <td>消息自动回复</td>
+              <td class="success">支持</td>
+              <td class="success">支持</td>
+              <td class="success">支持</td>
+              <td class="success">支持</td>
+            </tr>
+            <tr>
+              <td>微信自定义菜单</td>
+              <td></td>
+              <td class="success">支持</td>
+              <td class="success">支持</td>
+              <td class="success">支持</td>
+            </tr>
+            <tr>
+              <td>群发/定时群发</td>
+              <td></td>
+              <td class="success">支持</td>
+              <td></td>
+              <td class="success">支持</td>
+            </tr>
+            <tr>
+              <td>高级会员管理</td>
+              <td></td>
+              <td>部分支持</td>
+              <td></td>
+              <td class="success">支持</td>
+            </tr>
+            <tr>
+              <td>可申请微信支付</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td class="success">支持</td>
+            </tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{
+  "name": "yiyun",
+  "title": "Yiyun",
+  "description": "yiyun server",
+  "version": "1.0.0",
+  "scripts": {
+    "dist": "NODE_ENV=development gulp",
+    "build": "NODE_ENV=production gulp"
+  },
+  "homepage": "",
+  "private": true,
+  "keywords": [
+    "css",
+    "js",
+    "sass",
+    "web",
+    "admin",
+    "bootstrap"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://git.sportingcool.com/yiyun/yiyun.git"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "amd-optimize": "^0.6.1",
+    "del": "*",
+    "glob": "*",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "*",
+    "gulp-bootlint": "*",
+    "gulp-concat": "*",
+    "gulp-csscomb": "*",
+    "gulp-csslint": "*",
+    "gulp-cssnano": "*",
+    "gulp-header": "*",
+    "gulp-html": "*",
+    "gulp-jshint": "*",
+    "gulp-jslint": "*",
+    "gulp-less": "*",
+    "gulp-notify": "*",
+    "gulp-plumber": "*",
+    "gulp-prettify": "*",
+    "gulp-rename": "*",
+    "gulp-requirejs": "^0.1.3",
+    "gulp-uglify": "*",
+    "gulp-util": "*",
+    "node-notifier": "*",
+    "run-sequence": "*"
+  },
+  "engines": {
+    "node": "^4.2.1"
+  },
+  "files": [
+    "js/**/*.js",
+    "css/**/*.css",
+    "vendor/**/*",
+    "fonts/**/*",
+    "src/js/**/*.js"
+  ]
+}

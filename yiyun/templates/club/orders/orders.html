@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% set page_title = "订单列表" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "report" %}
+{% set site_submenu_active = "orders" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+<style>
+    .select2-container {
+        display: inline-block;
+    }
+    .money-icon {
+        color: #ffb63c;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa fa-jpy money-icon" aria-hidden="true"></i>
+            订单列表
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+            <li class="active">订单列表</li>
+        </ol>
+        <div class="page-header-actions">
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="panel">
+            <div class="panel-heading">
+                <form action="" class="pull-left" id="search-form">
+                    <label class="form-inline">状态：
+                        <select name="state"
+                                class="form-control input-sm select2-hidden-accessible"
+                                data-plugin="select2">
+                            <option value="100">全部</option>
+                            {% for state, state_name in states.items() %}
+                            <option value="{{ state.value }}" {% if
+                                    handler.get_argument(
+                            'state', '') == "%s" % state.value
+                            %}selected="selected"{% endif %}>{{ state_name
+                            }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="form-inline">时间：
+                        <input type="text" name="start"
+                               class="form-control input-sm date-widget"
+                               value="{{ handler.get_argument('start', '') }}">
+                        至
+                        <input type="text" name="end"
+                               class="form-control input-sm date-widget"
+                               value="{{ handler.get_argument('end', '') }}">
+                    </label>
+                    <button class="btn btn-primary btn-sm">查询</button>
+                </form>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>订单编号</th>
+                            <th>标题</th>
+                            <th>类型</th>
+                            <!-- <th>成员</th> -->
+                            <th>订单金额</th>
+                            <th>支付方式</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>支付时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>{{ order["match_member"]["pt_order_no"] }}</td>
+                            <td>{{ order["title"] }}</td>
+                            <td>{{ order["order_type"] }}</td>
+                            <td>
+                                <a href="#">{{ order["user_info"].nickName
+                                    }}</a> <br>
+                                {{ order["user_info"].mobile }}
+                            </td>
+                            <td>{{ order["total_fee"] }}</td>
+                            <td>{{ order["payment_method_name"] }}</td>
+                            <td>{{ order["state_name"] }}</td>
+                            <td>{{ order["created"] }}</td>
+                            <td>{{ order["paid"] or "-" }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel-footer">
+                {% if orders %}
+                {{ render_pagination(pagination) }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    (function () {
+        $(document).ready(function () {
+            var Site = window.Site;
+
+            Site.run()
+            $("#search-form select").change(function () {
+                $(this).parents("form").submit();
+            });
+        })
+    })();
+</script>
+{% endblock %}

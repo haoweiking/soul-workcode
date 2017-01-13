@@ -1,0 +1,139 @@
+body {
+
+}
+
+.form-control:focus {
+	border-color: #e4eaec;
+}
+
+.big-text {
+    font-size: 16px;
+}
+
+.page {
+    background: #f7f7f7;
+}
+
+.panel {
+    border-width: 1px;
+    border: 1px solid #dedede;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+}
+
+/**
+ * 顶部导航
+ */
+.navbar-nav > li > a.navbar-avatar, .navbar-toolbar > li > a.navbar-avatar {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.head {
+    width: 42px !important;
+}
+
+.current-name {
+    height: 42px;
+    line-height: 42px;
+    font-size: 16px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+/**
+ * 顶部导航下拉菜单
+ */
+.nav .dropdown-menu {
+    padding-top: 0;
+    padding-bottom: 0;
+    min-width: 120px;
+    margin-right: 5px;
+}
+.nav .dropdown-menu a {
+    color: #aaa;
+    font-size: 15px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+.nav .dropdown-menu .fa {
+    padding-left: 4px;
+    padding-right: 12px;
+}
+
+/**
+ * 左边导航
+ */
+.site-menu-item {
+    border-bottom: 1px solid #173652;
+}
+.site-menu-sub .site-menu-item {
+    border: none;
+    background: #0e304c;
+}
+.site-menu > .site-menu-item.open {
+    background: #0e304c;
+}
+.css-menubar .site-menu > .site-menu-item > a {
+	font-size: 17px;
+}
+.css-menubar .site-menu > .site-menu-item > a .site-menu-title {
+	font-size: 17px;
+}
+.css-menubar .site-menu-title:first-child {
+	font-size: 17px;
+}
+.site-menubar-unfold .site-menu > .site-menu-item > a .site-menu-title {
+    font-size: 17px;
+}
+.site-menubar-unfold .site-menu-icon {
+    font-size: 17px;
+}
+.site-menu .site-menu-sub .site-menu-item > a {
+    font-size: 17px;
+}
+.scrollable-container {
+    background: #1d3d59;
+}
+.site-menu > .site-menu-item.active {
+    background: #0e304c;
+}
+.site-menubar {
+    background: #1d3d59;
+}
+
+/**
+ * select2
+ */
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+	background: #e1f7fc;
+}
+.select2-container--default .select2-dropdown, .select2-container--default.select2-container--open .select2-selection {
+	border-color: #e1f7fc;
+}
+
+/**
+ * button
+ */
+.btn-primary {
+	background-color: #00ace5;
+	border-color: #00ace5;
+    font-size: 16px;
+    padding: 4px 18px;
+}
+
+/**
+ * page title
+ */
+.page-title {
+    color: #777;
+}
+
+.blue-font {
+    color: #1fb6e8 !important;
+}
+
+.title-icon {
+    color: #00ace5;
+}

@@ -1,0 +1,16 @@
+<script type="text/javascript" src="//webapi.amap.com/maps?v=1.3&key={{ handler.settings['amap_js_key'] }}"></script> 
+<!-- <script type="text/javascript" src="{{ static_url('vendor/summernote/plugin/summernote-emoji.js') }}"></script> -->
+<script type="text/javascript" src="{{ static_url('vendor/summernote/lang/summernote-zh-CN.js') }}"></script>
+<script type="text/javascript">
+var cities = {{ json_encode(cities)|safe }};
+var match_groups = {{ json_encode(groups)|safe }};
+var match_options = {{ json_encode(custom_options)|safe }};
+var can_change_goups = {{ json_encode(match.can_change_goups()) }};
+var group_type = {{ group_type }};
+</script>
+<script type="text/javascript" src="{{ static_url('js/pages/match.js') }}"></script>
+{#<style>#}
+{#.note-group-select-from-files {#}
+{#  display: none;#}
+{#}#}
+{#</style>#}

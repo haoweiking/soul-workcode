@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% set page_title = "退款订单" %}
+{% set body_class = "app-work" %}
+{% set site_menu_active = "activity" %}
+{% set site_submenu_active = "list" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/activity.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">退款订单</h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="wb-home" aria-hidden="true"></i></a></li>
+      <li><a href="{{ reverse_url('club_activity_list') }}">活动管理</a></li>
+      <li class="active">退款订单</li>
+    </ol>
+    <div class="page-header-actions">
+    </div>
+  </div>
+  <div class="page-content"> 
+    <div class="panel">
+      <div class="panel-heading">
+      </div>
+      <div class="panel-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>订单编号</th>
+              <th>活动</th>
+              <th>报名人</th>
+              <th>手机</th>
+              <th>性别</th>
+              <th>实收款(元)</th>
+              <th>退款金额</th>
+              <th>退款状态</th>
+              <th>退款时间</th>
+              <th>备注</th>
+            </tr>
+          </thead>
+          <tbody>
+              {% for order in orders %}
+              <tr>
+                  <td>{{ order.order_no }}</td>
+                  <td>
+                      <a href="{{ reverse_url('club_activity_applyform', order.order.activity_id) }}">{{ order.order.title }}</a>
+                  </td>
+                  <td>{{ order.user.name or order.nickname }}</td>
+                  <td>{{ order.mobile or order.user.mobile }}</td>
+                  <td>{{ order.gender_label }}</td>
+                  <td>{{ order.order.payment_fee }}</td>
+                  <td>{{ order.order.refunded_fee }}</td>
+                  <td>{{ order.order.refund_state_name }}</td>
+                  <td>{{ order.order.refunded_time or "" }}</td>
+                  <td>{{ order.order.note or "" }}</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-footer">
+        {{ render_pagination(orders.pagination) }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,114 @@
+
+<div class="site-menubar">
+  <div class="site-menubar-body">
+    <div>
+      <div>
+        <ul class="site-menu margin-top-25">
+          <li class="site-menu-item {% if site_menu_active == 'home'%}open active{% endif %}">
+            <a href="{{ reverse_url('admin_home') }}">
+              <i class="site-menu-icon wb-home" aria-hidden="true"></i>
+              <span class="site-menu-title">总览</span>
+            </a>
+          </li>
+          <li class="site-menu-item has-sub {% if site_menu_active == 'team' %}open active{% endif %}">
+            <a class="animsition-link" href="#">
+              <i class="site-menu-icon wb-settings" aria-hidden="true"></i>
+              <span class="site-menu-title">俱乐部管理</span>
+              <span class="site-menu-arrow"></span>
+            </a>
+            <ul class="site-menu-sub">
+              <li class="site-menu-item {% if site_submenu_active == 'list' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('admin_teams') }}">
+                  <span class="site-menu-title">俱乐部列表</span>
+                </a>
+              </li>
+              <li class="site-menu-item {% if site_submenu_active == 'certify_applications' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('admin_teams_certify_applications') }}">
+                  <span class="site-menu-title">实名认证审核请求</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="site-menu-item {% if site_menu_active == 'user' %}open active{% endif %}">
+            <a href="{{ reverse_url('admin_users') }}">
+              <i class="site-menu-icon wb-users" aria-hidden="true"></i>
+              <span class="site-menu-title">用户管理</span>
+              <!-- <span class="site-menu-arrow"></span> -->
+            </a>
+          </li>
+          <li class="site-menu-item {% if site_menu_active == 'activity'%}open active{% endif %}">
+            <a href="{{ reverse_url('admin_activities') }}">
+              <i class="site-menu-icon fa-calendar-o" aria-hidden="true"></i>
+              <span class="site-menu-title">活动管理</span>
+              <!-- <span class="site-menu-arrow"></span> -->
+            </a>
+          </li>
+          <li class="site-menu-item has-sub {% if site_menu_active == 'match'%}open active{% endif %}">
+            <a href="javascript:void(0)">
+              <i class="site-menu-icon wb-pie-chart" aria-hidden="true"></i>
+              <span class="site-menu-title">赛事管理</span>
+              <span class="site-menu-arrow"></span>
+            </a>
+            <ul class="site-menu-sub">
+              <li class="site-menu-item {% if site_submenu_active == 'list' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('admin_matches') }}">
+                  <span class="site-menu-title">赛事列表</span>
+                </a>
+              </li>
+              <li class="site-menu-item {% if site_submenu_active == 'settlement_application' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('admin_settlement_applications') }}">
+                  <span class="site-menu-title">结算申请</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="site-menu-item {% if site_menu_active == 'announce'%}open active{% endif %}">
+            <a href="#">
+              <i class="site-menu-icon fa-bullhorn" aria-hidden="true"></i>
+              <span class="site-menu-title">公告管理</span>
+              <!-- <span class="site-menu-arrow"></span> -->
+            </a>
+          </li>
+          <li class="site-menu-item has-sub {% if site_menu_active == 'report'%}open active{% endif %}">
+            <a href="javascript:void(0)">
+              <i class="site-menu-icon wb-pie-chart" aria-hidden="true"></i>
+              <span class="site-menu-title">财务</span>
+              <span class="site-menu-arrow"></span>
+            </a>
+            <ul class="site-menu-sub">
+              <li class="site-menu-item {% if site_submenu_active == 'order' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('admin_orders') }}">
+                  <span class="site-menu-title">订单</span>
+                </a>
+              </li>
+              <li class="site-menu-item {% if site_submenu_active == 'cash_log' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('admin_cash_applies') }}">
+                  <span class="site-menu-title">提现申请</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="site-menu-item has-sub {% if site_menu_active == 'settings' %}open active{% endif %}">
+            <a class="animsition-link" href="#">
+              <i class="site-menu-icon wb-settings" aria-hidden="true"></i>
+              <span class="site-menu-title">系统设置</span>
+              <span class="site-menu-arrow"></span>
+            </a>
+            <ul class="site-menu-sub">
+              <li class="site-menu-item {% if site_submenu_active == 'admin' %}active{% endif %}">
+                <a class="animsition-link" href="{{ reverse_url('admin_admins') }}">
+                  <span class="site-menu-title">管理员</span>
+                </a>
+              </li>
+              <li class="site-menu-item {% if site_submenu_active == 'logs' %}active{% endif %}">
+                <a class="animsition-link" href="#">
+                  <span class="site-menu-title">操作日志</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% set site_menu_active = "settings" %}
+{% set site_submenu_active = "mini_site" %}
+{% set tab_active = "mini_site" %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+
+{% from "shared/macro.html" import render_field with context %}
+
+{% block body %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fa fa-cog title-icon" aria-hidden="true"></i>
+            微门户设置
+        </h1>
+    </div>
+    <div class="page-content container-fluid">
+        <div class="panel">
+            <div class="panel-body">
+                <div class="nav-tabs-horizontal">
+                    <ul class="nav nav-tabs nav-tabs-line">
+                        <li class="active"><a href="##"
+                                              class="blue-font">微门户</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active">
+                            <div class="padding-top-25 col-sm-4">
+                                {% include "shared/flashed_messages.html" %}
+                                <form method="post" autocomplete="off"
+                                      enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <div class="example-wrap">
+                                            <h4 class="example-title">
+                                                你的微站地址：</h4>
+                                            <p class="form-control-static">{{
+                                                base_url}}/c/{{
+                                                current_team['id'] }}</p>
+                                            <p class="form-control-static">
+                                                <img style="width:256px"
+                                                     src="{{ reverse_url('generate_qrcode', urlsafe_b64encode(('%s/c/%s' % (base_url, current_team['id'])).encode('utf-8'))) }}">
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% endblock %}
+

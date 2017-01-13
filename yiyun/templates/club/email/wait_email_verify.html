@@ -1,0 +1,64 @@
+{% extends "blank.html" %}
+
+{% set page_title = "等待邮箱验证" %}
+{% set body_class = "page-register-v3 layout-full" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ static_url('css/pages/register-v3.css') }}">
+{% endblock %}
+
+{% block body %}
+    <!-- Page -->
+    <div class="page animsition vertical-align text-center" data-animsition-in="fade-in"
+         data-animsition-out="fade-out">
+        <div class="page-content vertical-align-middle">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="brand">
+                        <img class="brand-img" src="{{ static_url('img/logo.png') }}" style="width:80px" alt="...">
+                        <h2 class="brand-text font-size-18">派队管家</h2>
+                    </div>
+                    <div>
+                        <p class="lead text-muted" style="display: block;padding-top:25px; padding-bottom:25px;">
+                            登陆成功，如果要使用更多新功能请在２小时之内前往您的注册邮箱完成身份验证！
+                        </p>
+                        <p class="text-muted" style="display: block;padding-top:25px; padding-bottom:25px;">
+                            如果没收到验证邮件，请点击<a href="#" id="send-verify-mail">重新发送</a>
+                        </p>
+                    </div>
+                    <p>换个账号？请 <a href="{{ reverse_url('club_auth_login') }}">退出</a></p>
+                </div>
+            </div>
+            <footer class="page-copyright page-copyright-inverse">
+                <p>© 2016 派队管家</p>
+            </footer>
+        </div>
+    </div>
+    <!-- End Page -->
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    (function(document, window, $){
+        'use strict';
+
+        var Site = window.Site;
+        $(document).ready(function(){
+            Site.run();
+            var url = "{{ reverse_url('club_request_verify_email') }}";
+
+            $("#send-verify-mail").click(
+                function () {
+                    $.get(url, function (data, status) {
+                        if (status && data){
+                            var message_ = data["message"];
+                            alert(message_);
+                        }
+                    })
+                }
+            );
+        })
+
+    })(document, window, jQuery);
+</script>
+{% endblock %}

@@ -1,0 +1,15 @@
+FROM registry.cn-beijing.aliyuncs.com/parteam/yiyun (http://registry.cn-beijing.aliyuncs.com/parteam/yiyun)
+
+RUN service supervisor stop
+
+# delete old code
+RUN rm -rf /app
+
+# create /app and add files
+ADD . /app
+WORKDIR /app
+
+EXPOSE 80
+VOLUME /var/log/app
+
+CMD ["supervisord"]

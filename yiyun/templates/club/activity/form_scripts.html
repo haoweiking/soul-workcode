@@ -1,0 +1,235 @@
+<script type="text/javascript" src="//webapi.amap.com/maps?v=1.3&key={{ handler.settings['amap_js_key'] }}"></script> 
+<!-- <script type="text/javascript" src="{{ static_url('vendor/summernote/plugin/summernote-emoji.js') }}"></script> -->
+<script type="text/javascript" src="{{ static_url('vendor/summernote/lang/summernote-zh-CN.js') }}"></script>
+<script type="text/javascript">
+  (function(document, window, $){
+    'use strict';
+    var is_mobile = !!(navigator.userAgent.match(/Mobile/i));
+    var cities = {{ json_encode(cities)|safe }};
+    var Site = window.Site;
+
+    $('#description').summernote({
+      toolbar: [
+        // [groupName, [list of button]]
+        ['style', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+        ['fontsize', ['fontsize', 'height']],
+        ['color', ['color']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['insert', ['hr', 'link', 'picture', 'video']],
+        // ['msic', ['emoji']]
+        // ['msic', ['fullscreen']]
+      ],
+      lang: "zh-CN"
+    });
+    
+    var updateAddress = function(name, address, lat, lng) {
+        console.log(name, address, lat, lng)
+     
+        $("#lat").val(lat)
+        $("#lng").val(lng)
+        $("#formatted_address").val(name)
+        $("#address").val(address)
+        
+        $('#address').typeahead('val', address)
+    }
+
+    $(document).ready(function(){
+      Site.run();
+
+      $("#province").on("select2:select", function(){
+        var province = $(this).val();
+        $("#city").find('option').remove();
+
+        $.each(cities[province],function(key, value) {
+            $("#city").append('<option value=' + value + '>' + value + '</option>');
+        });
+
+        $('#city').trigger('change')
+      });
+      
+      var marker = [];
+      var map = new AMap.Map('map-container', {
+        zoom: 13,
+        center: [116.39,39.9]
+      })
+      
+      AMap.plugin(['AMap.ToolBar','AMap.Scale'],function(){
+        var toolBar = new AMap.ToolBar();
+        var scale = new AMap.Scale();
+        map.addControl(toolBar);
+        map.addControl(scale);
+      })
+      
+      var aMapQuery = function(query, syncresults, process) {
+          return AMap.service(['AMap.Autocomplete','AMap.PlaceSearch'], function(){
+            var autocomplete = new AMap.Autocomplete({
+                city: $("#city").val()
+            });
+            
+            autocomplete.search(query, function(status, result) {
+                if (status === 'complete' && result.info === 'OK') {
+                    var addresses = []
+                    $.each(result.tips, function(key, tip){
+                        addresses.push(tip)
+                    })
+                    process(addresses)
+                }
+            })
+          })
+      }
+      
+      var getAddressDetail = function(city, name, location) {
+          AMap.service('AMap.PlaceSearch', function(){
+            var placeSearch = new AMap.PlaceSearch({
+                city: city,
+                map:map,
+                extensions: "all",
+            });
+            
+            setMarkerPosition(location)
+            
+            placeSearch.getDetails(name, function(status, result){
+                console.log(result)
+                var poi = result['poiList']['pois'][0],
+                    formattedAddress = poi['adname']+poi['address']+poi['name'],
+                    location = poi.location;
+                
+                setMarkerPosition(location)
+                updateAddress(poi['name'], formattedAddress, location.lat, location.lng)
+            })
+        })
+      }
+      
+      var addressSearch = function(city, name, location) {
+          
+          console.log("addressSearch", city, name)
+          AMap.service('AMap.PlaceSearch', function(){
+            var placeSearch = new AMap.PlaceSearch({
+                city: city,
+                {#map:map,#}
+                extensions: "all",
+            });
+            
+            setMarkerPosition(location)
+            
+            placeSearch.search(name, function(status, result){
+                if (result['poiList'] && result['poiList']['pois']) {
+                  var poi = result['poiList']['pois'][0],
+                      formattedAddress = poi['adname']+poi['address']+poi['name'],
+                      location = poi.location;
+                  
+                  setMarkerPosition(location)
+                  updateAddress(poi['name'], formattedAddress, location.lat, location.lng)
+                }
+            })
+        })
+      }
+      
+      var regeocodeLnglat = function(lat, lng){
+            AMap.service('AMap.Geocoder', function(){
+                var geocoder = new AMap.Geocoder({
+                    city: $("#city").val(),
+                    map:map,
+                    extensions: "all",
+                })
+                
+                var lnglat = new AMap.LngLat(lng, lat)
+                
+                geocoder.getAddress(lnglat, function(status, result) {
+                    console.log(result)
+                    if (status === 'complete' && result.info === 'OK') {
+                        console.log(result['regeocode'])
+                        
+                        var poi = result['regeocode']['pois'][0],
+                            addressComponent = result['regeocode']['addressComponent'],
+                            formattedAddress = result['regeocode']['formattedAddress'],
+                            location = poi.location;
+                          
+                         formattedAddress = formattedAddress.replace(addressComponent['province'], "")
+                         formattedAddress = formattedAddress.replace(addressComponent['city'], "")
+                          
+                         updateAddress(poi['name'], formattedAddress, location.lat, location.lng)
+                    }
+                })
+            })
+      }
+      
+      var regeocodeAddress = function(address, callback){
+            AMap.service('AMap.Geocoder', function(){
+                var geocoder = new AMap.Geocoder({
+                    city: $("#city").val(),
+                    map:map,
+                    extensions: "all",
+                })
+                
+                geocoder.getLocation(address, function(status, result) {
+                    if (status === 'complete' && result.info === 'OK') {
+                        callback(result['geocodes'][0]['location'])
+                    }
+                })
+            })
+      }
+      
+      var marker = new AMap.Marker({
+            draggable: true,
+            cursor: 'move',
+            raiseOnDrag: true
+        })
+        
+      marker.on("dragend", function(e){
+            map.setCenter(e.lnglat)
+            regeocodeLnglat(e.lnglat.getLat(), e.lnglat.getLng())
+      })
+      
+      var setMarkerPosition = function(location) {
+          if (!location) return
+          
+          marker.setPosition(location)
+          marker.setMap(map)
+          map.setCenter(location)
+      }
+      
+      $('#address').typeahead({
+            minLength: 1,
+            highlight: true
+        }, {
+            name: 'my-dataset',
+            display: 'name',
+            source: aMapQuery,
+            async: true,
+            templates: {
+                empty: [
+                '<div class="empty-message">',
+                    '没有匹配地址',
+                '</div>'
+                ].join('\n'),
+                suggestion: Handlebars.compile('{% raw %}<div><strong>{{name}}</strong> – {{district}}</div>{% endraw %}')
+            }
+      })
+      
+      $('#address').on("typeahead:select", function(e, suggestion){
+            console.log(suggestion)
+            map.setCenter(suggestion.location)
+
+            getAddressDetail(suggestion.adcode, suggestion["id"], suggestion.location)
+      })
+      
+      var curLat = parseFloat($("#lat").val()),
+          curLng = parseFloat($("#lng").val()),
+          curAddress = $("#address").val();
+          
+      if(curAddress) {
+          addressSearch($("#city").val(), curAddress)
+      }  
+      else if (curLat && curLng){
+          regeocodeLnglat(curLat, curLng)
+          var lnglat = new AMap.LngLat(curLng, curLat)
+          setMarkerPosition(lnglat)
+          map.setCenter(lnglat)
+      } else {
+          addressSearch($("#city").val(), $("#city").val())
+      }
+      
+    })
+ })(document, window, jQuery); 
+</script>

@@ -1,0 +1,115 @@
+{% extends "settings/layout.html" %}
+
+{% set site_menu_active = "settings" %}
+{% set site_submenu_active = "settings" %}
+{% set tab_active = "basic" %}
+
+{% block content %}
+
+{% from "shared/macro.html" import render_field with context %}
+<form method="post" autocomplete="off" enctype="multipart/form-data">
+  {% for field in form  %}
+  <div class="form-group">
+    {{ render_field(field) }}
+
+    {% if field.name == "iconfile" and current_team.icon_url %}
+    <a href="{{ current_team.icon_url }}" target="_blank">
+      <img src="{{ current_team.icon_url }}" alt="" style="width: 100px">
+    </a>
+    {% endif %}
+  </div>
+  {% endfor %}
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">保存</button>
+  </div>
+</form>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript" src="//webapi.amap.com/maps?v=1.3&key={{ handler.settings['amap_js_key'] }}"></script> 
+<script type="text/javascript">
+  (function(document, window, $){
+    'use strict';
+
+    var Site = window.Site;
+    var cities = {{ json_encode(cities)|safe }};
+    
+    $(document).ready(function(){
+      Site.run();
+
+      $("#province").change(function(){
+        var province = $(this).val();
+
+        $("#city").find('option').remove();
+
+        $.each(cities[province],function(key, value) {
+            $("#city").append('<option value=' + value + '>' + value + '</option>');
+        });
+
+        $('#city').trigger('change')
+      })
+        
+      var aMapQuery = function(query, syncresults, process) {
+          return AMap.service(['AMap.Autocomplete'], function(){
+            var autocomplete = new AMap.Autocomplete({
+                city: $("#city").val()
+            });
+            
+            autocomplete.search(query, function(status, result) {
+                console.log(status, result)
+                var addresses = []
+                $.each(result.tips, function(key, tip){
+                    addresses.push(tip)
+                })
+                process(addresses)
+            })
+          })
+      }
+      
+      var getAddressDetail = function(city, name, location) {
+          AMap.service('AMap.PlaceSearch', function(){
+            var placeSearch = new AMap.PlaceSearch({
+                city: city,
+                extensions: "all",
+            });
+            
+            placeSearch.getDetails(name, function(status, result){
+                console.log(result)
+                var poi = result['poiList']['pois'][0],
+                    formattedAddress = poi['adname']+poi['address']+poi['name'],
+                    location = poi.location;
+                
+                $('#address').typeahead('val', formattedAddress)
+            })
+        })
+      }
+      
+      $('#address').typeahead({
+            minLength: 1,
+            highlight: true
+        }, {
+            name: 'my-dataset',
+            display: 'name',
+            source: aMapQuery,
+            async: true,
+            templates: {
+                empty: [
+                '<div class="empty-message">',
+                    '没有匹配地址',
+                '</div>'
+                ].join('\n'),
+                suggestion: Handlebars.compile('{% raw %}<div><strong>{{name}}</strong> – {{district}}</div>{% endraw %}')
+            }
+        });
+        
+
+       $('#address').on("typeahead:select", function(e, suggestion){
+            console.log(suggestion)
+            getAddressDetail(suggestion.adcode, suggestion["id"], suggestion.location)
+      })
+        
+    });
+  })(document, window, jQuery);
+</script>
+{% endblock %}
