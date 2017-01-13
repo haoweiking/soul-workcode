@@ -19,6 +19,7 @@ ENV C_FORCE_ROOT 1
 ADD . /app
 WORKDIR /app
 RUN pip install -r requirements.txt -i https://pypi.mirrors.ustc.edu.cn/simple/
+# 镜像源可替换为 清华大学  https://pypi.tuna.tsinghua.edu.cn/simple/
 
 EXPOSE 80
 VOLUME /var/log/app

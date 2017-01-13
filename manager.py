@@ -87,6 +87,7 @@ def main():
             state=1
         )
 
+    # 生成app访问的token和secret的 key
     elif options.cmd == 'createclient':
         app = create_app(settings)
         Client.create(
@@ -95,6 +96,7 @@ def main():
             secret=create_token(32)
         )
 
+    # 利用gevent多线程启动server
     elif options.cmd == 'run_as_wsgi':
         logging.info('server started. port %s' % options.port)
 
@@ -108,6 +110,7 @@ def main():
         http_server = gevent.wsgi.WSGIServer(('', options.port), wsgi_app)
         http_server.serve_forever()
 
+    # 使用tornado框架本身的IOLoop启动server
     elif options.cmd == 'runserver':
 
         tornado.platform.asyncio.AsyncIOMainLoop().install()
@@ -118,6 +121,7 @@ def main():
 
         print("running...")
         ioloop.run_forever()
+
     elif options.cmd == "fix_notify":
         from fix_script.fix_match_start_nofity import fix_match_start_notify
         fix_match_start_notify()
