@@ -33,7 +33,3 @@ print 'input_dir : %s ' % input
 #print 'input_suffix : %s ' % input
 
 rename_file(current_path, img_list)
-
-
-
-
