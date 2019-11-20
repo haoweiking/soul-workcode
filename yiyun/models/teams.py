@@ -539,7 +539,7 @@ class TeamMember(BaseModel):
 
     team = ForeignKeyField(Team, related_name="members")
     user = ForeignKeyField(User, related_name="teams", index=True, null=True)
-    parteam_user_id = IntegerField(verbose_name="对应派队系统用户")
+    parteam_user_id = IntegerField(verbose_name="对应paidui系统用户")
 
     nick = CharField(default="", verbose_name="昵称")
 

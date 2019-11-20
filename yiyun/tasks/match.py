@@ -56,9 +56,9 @@ def batch_refund_by_sponsor(self, match_id: int):
 @celery.task(bind=True)
 def batch_refund_worker(self, member_id: int):
     """
-    批量退款的 worker, 调用派队的 `申请退款`接口
+    批量退款的 worker, 调用paidui的 `申请退款`接口
 
-    退款成功后继续调用派队推送接口推送主办方取消比赛退款的消息
+    退款成功后继续调用paidui推送接口推送主办方取消比赛退款的消息
 
     :param self:
     :param member_id:
@@ -74,7 +74,7 @@ def batch_refund_worker(self, member_id: int):
         TeamOrder.update(state=TeamOrder.OrderState.TRADE_CLOSED_BY_USER) \
             .where(TeamOrder.id == team_order.id).execute()
     except ParteamRequestError as e:
-        msg = "主办方取消比赛调用派队退款申请接口错误: error: {0}\nmatch_id={1}, " \
+        msg = "主办方取消比赛调用paidui退款申请接口错误: error: {0}\nmatch_id={1}, " \
               "pt_order_no={2}"\
             .format(str(e), member.match_id, member.pt_order_no)
         logging.error(msg)

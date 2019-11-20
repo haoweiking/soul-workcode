@@ -78,7 +78,7 @@ class MatchService(BaseService):
 
         :param user_id:
         :param match:
-        :param notify_url: 派队回调地址
+        :param notify_url: paidui回调地址
         :param insists: 强制退出
         :param role: 退赛发起人, 1 用户, 2 赛事方
         :return:
@@ -115,7 +115,7 @@ class MatchService(BaseService):
                                         notify_url=notify_url,
                                         role=role)
                     except NotPaidError as e:
-                        logging.warning("调用派队退款接口发现订单未支付: {0}"
+                        logging.warning("调用paidui退款接口发现订单未支付: {0}"
                                         .format(str(e)))
                         TeamOrder.update(state=TeamOrder.OrderState
                                          .TRADE_CLOSED_BY_USER.value) \

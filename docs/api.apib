@@ -1,14 +1,14 @@
 FORMAT: 1A
 HOST: https://g.sportscool.cn/api/2
 
-# 派队管家接口
+# 接口
 
 # Group 使用指南
 
 ### 设计规范FORMAT: 1A
 HOST: https://g.sportscool.cn/api/2
 
-# 派队管家接口
+# 接口
 
 # Group 使用指南
 
@@ -353,7 +353,7 @@ public class GenerateSignature {
 + pt_order_no: 2016061788721 (string) - 订单号：如果状态是未支付，可以直接使用此订单号转支付
 + total_fee: 100.00 (string) - 报名费
 + state: 0 (number) - 状态：-1 禁赛 0 待支付 1 待审核 10 正常
-+ user(ParteamUser) - 派队用户
++ user(ParteamUser) - paidui用户
 
 ## MatchMemberSample(object)
 + id: 1 (number)
@@ -1148,7 +1148,7 @@ public class GenerateSignature {
 
 返回数据中说明：
 1. 返回数据中 `state` 标记状态，0 待支付 1 待审核 10 正常 （如果为 0 则说明需要支付）
-2. `order` 为派队统一下单订单对象，用于调用统一支付接口
+2. `order` 为paidui统一下单订单对象，用于调用统一支付接口
 
 + Parameters
     + match_id(number, required) - 赛事ID
@@ -1178,7 +1178,7 @@ public class GenerateSignature {
         + pt_order_no: 2016061788721 (string) - 订单号：如果状态是未支付，可以直接使用此订单号转支付
         + state: 0 (number) - 状态：0 待支付 1 待审核 10 正常 （如果状态为0则需要转跳支付界面完成支付）
         + order(object):
-            + orderNo: 2016062198371263 (string) - 派队订单系统订单号
+            + orderNo: 2016062198371263 (string) - paidui订单系统订单号
             + orderValue: 1000 (string) - 赛事ID
             + eachFee: 4500 (number) - 单价
             + num: 1 (number) - 数量
@@ -1729,7 +1729,7 @@ public class GenerateSignature {
 + pt_order_no: 2016061788721 (string) - 订单号：如果状态是未支付，可以直接使用此订单号转支付
 + total_fee: 100.00 (string) - 报名费
 + state: 0 (number) - 状态：-1 禁赛 0 待支付 1 待审核 10 正常
-+ user(ParteamUser) - 派队用户
++ user(ParteamUser) - paidui用户
 
 ## MatchMemberSample(object)
 + id: 1 (number) 
@@ -2524,7 +2524,7 @@ public class GenerateSignature {
 
 返回数据中说明：
 1. 返回数据中 `state` 标记状态，0 待支付 1 待审核 10 正常 （如果为 0 则说明需要支付）
-2. `order` 为派队统一下单订单对象，用于调用统一支付接口
+2. `order` 为paidui统一下单订单对象，用于调用统一支付接口
 
 + Parameters
     + match_id(number, required) - 赛事ID
@@ -2554,7 +2554,7 @@ public class GenerateSignature {
         + pt_order_no: 2016061788721 (string) - 订单号：如果状态是未支付，可以直接使用此订单号转支付
         + state: 0 (number) - 状态：0 待支付 1 待审核 10 正常 （如果状态为0则需要转跳支付界面完成支付）
         + order(object):
-            + orderNo: 2016062198371263 (string) - 派队订单系统订单号
+            + orderNo: 2016062198371263 (string) - paidui订单系统订单号
             + orderValue: 1000 (string) - 赛事ID
             + eachFee: 4500 (number) - 单价
             + num: 1 (number) - 数量

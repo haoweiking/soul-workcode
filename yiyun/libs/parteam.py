@@ -1,5 +1,5 @@
 """
-派队接口
+paidui接口
 """
 
 import time
@@ -12,7 +12,7 @@ from yiyun.core import current_app as app
 
 
 class ParteamRequestError(Exception):
-    """派队接口请求异常"""
+    """paidui接口请求异常"""
     pass
 
 
@@ -28,7 +28,7 @@ class NotPaidError(RefundError):
 
 class ParteamUser(object):
     """
-    派队用户 Model
+    paidui用户 Model
     TODO: 可改进实现 metaclass
     """
     def __init__(self, user_info: dict):
@@ -124,7 +124,7 @@ class ParteamPushMessage(object):
     def __init__(self, user_infos: list, match_id: int, match_name: str,
                  sponsor_name: str, sponsor_pic_url: str):
         """
-        派队赛事推送消息
+        paidui赛事推送消息
         :param user_infos:
         :param match_id:
         :param match_name:
@@ -211,7 +211,7 @@ class Parteam(object):
 
     def parteam_user(self, user_ids: list) -> Dict[int, ParteamUser]:
         """
-        批量获取派队用户信息
+        批量获取paidui用户信息
         :param user_ids:
         :return:
         """
@@ -268,13 +268,13 @@ class Parteam(object):
                 .format(resp["code"], resp["message"])
             raise NotPaidError(msg)
 
-        logging.info("调用派队退款接口失败: code: {0}, message: {1}"
+        logging.info("调用paidui退款接口失败: code: {0}, message: {1}"
                      .format(resp["code"], resp["message"]))
         raise RefundError("退款失败: {0}, {1}"
                           .format(resp["code"], resp["message"]))
 
     def push_message(self, message: ParteamPushMessage):
-        """调用派队推送接口, 发送推送消息"""
+        """调用paidui推送接口, 发送推送消息"""
         path = "/match/openapi/matchPush.do"
         data = message.body
         try:
@@ -286,7 +286,7 @@ class Parteam(object):
         if resp["code"] == 200:
             return True
 
-        logging.debug("调用派队消息推送接口失败: code: {0}, message: {1}"
+        logging.debug("调用paidui消息推送接口失败: code: {0}, message: {1}"
                       .format(resp["code"], resp["message"]))
         return False
 

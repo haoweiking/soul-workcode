@@ -1,7 +1,7 @@
 FORMAT: 1A
 HOST: https://g.sportscool.cn/api/2
 
-# 派队管家接口
+# paidui管家接口
 
 # Group 使用指南
 

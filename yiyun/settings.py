@@ -130,7 +130,7 @@ AMAP_JS_KEY = ""
 CLUB_URL = ""
 MAIN_URL = ""
 
-# 派队接口服务器
+# paidui接口服务器
 PARTEAM_API_URL = ""
 PARTEAM_AVATAR_BASE_URL = ""
 

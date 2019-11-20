@@ -11,7 +11,7 @@ class ParteamRequestError(BaseError):
 
 
 class ParteamMixin(object):
-    """ 派队接口 """
+    """ paidui接口 """
 
     def get_session(self, access_token):
 
@@ -44,12 +44,12 @@ class ParteamMixin(object):
                 r = requests.get(url, timeout=5)
 
         except Exception as e:
-            raise ParteamRequestError(500, "请求派队接口失败",
+            raise ParteamRequestError(500, "请求paidui接口失败",
                                       log_message="Parteam Req Error: {0}".format(e))
 
         if 200 > r.status_code > 299:
             raise ParteamRequestError(
-                r.status_code, "请求派队接口失败",
+                r.status_code, "请求paidui接口失败",
                 log_message="Parteam Req Error: ({0}){1}".
                 format(r.status_code, r.content))
 
@@ -57,7 +57,7 @@ class ParteamMixin(object):
             resp = r.json()
         except Exception as e:
             raise ParteamRequestError(
-                r.status_code, "请求派队接口失败",
+                r.status_code, "请求paidui接口失败",
                 log_message="Parteam Resp Parse Error: {0}".format(e))
 
         if resp['code'] == 600:
@@ -68,7 +68,7 @@ class ParteamMixin(object):
         if resp['code'] != 200 \
                 or 'attribute' not in resp:
             raise ParteamRequestError(
-                r.status_code, "请求派队接口失败",
+                r.status_code, "请求paidui接口失败",
                 log_message="Parteam Resp Parse Error: {0}".format(resp))
 
         return resp['attribute']

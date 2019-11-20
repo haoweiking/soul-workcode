@@ -10,7 +10,7 @@ from yiyun.service.match import MatchService
 @celery.task(bind=True, default_retry_delay=2 * 60)
 def join_match_done(self, match_id: int, member_id: int):
     """
-    参加赛事完成, 调用派队消息推送接口
+    参加赛事完成, 调用paidui消息推送接口
     :param: self: celery.task.Context
     :param match_id: int,  Match.id
     :param member_id: int, MatchMember.id
@@ -29,13 +29,13 @@ def join_match_done(self, match_id: int, member_id: int):
                             sponsor_pic_url=team.get_cover_url(size="medium"))
 
     if not pt.push_message(message=message):
-        raise self.retry(exc=ParteamRequestError("调用派队推送接口失败"))
+        raise self.retry(exc=ParteamRequestError("调用paidui推送接口失败"))
 
 
 @celery.task(default_retry_delay=2 * 60)
 def leave_match_done(match_id: int, member_id: int):
     """
-    退出赛事完成, 调用派队消息推送接口
+    退出赛事完成, 调用paidui消息推送接口
     :param match_id:
     :param member_id:
     :return:
@@ -63,7 +63,7 @@ def scan_match_start_time():
 @celery.task(bind=True, default_retry_delay=2 * 60)
 def match_start(self, match_id: int):
     """
-    赛事开始前, 调用派队消息推送接口
+    赛事开始前, 调用paidui消息推送接口
     :param self: celery task Context
     :param match_id:
     :return:
@@ -83,7 +83,7 @@ def match_start(self, match_id: int):
 
     pt = Parteam(app.settings["parteam_api_url"])
     if not pt.push_message(message=message):
-        self.retry(exc=ParteamRequestError("调用派队推送接口失败"))
+        self.retry(exc=ParteamRequestError("调用paidui推送接口失败"))
 
     # MatchStartCeleryTask.task_done(self.request.id)
 
@@ -94,7 +94,7 @@ def match_refund(self, match_id: int, order_no: str, user_info: dict):
     主办方退款推送
     :param self:
     :param match_id:
-    :param order_no: 派队支付订单
+    :param order_no: paidui支付订单
     :param user_info:
     :return:
     """
@@ -106,7 +106,7 @@ def match_refund(self, match_id: int, order_no: str, user_info: dict):
                             sponsor_pic_url=team.get_cover_url(size="medium"))
     pt = Parteam(app.settings["parteam_api_url"])
     if not pt.push_message(message):
-        self.retry(exc=ParteamRequestError("调用派队推送接口失败"))
+        self.retry(exc=ParteamRequestError("调用paidui推送接口失败"))
 
 
 @celery.task(bind=True, default_retry_delay=2 * 60)
@@ -133,4 +133,4 @@ def new_match_status(self, match_id: int):
 
     pt = Parteam(app.settings["parteam_api_url"])
     if not pt.push_message(message):
-        self.retry(ParteamRequestError("调用派队推送接口失败"))
+        self.retry(ParteamRequestError("调用paidui推送接口失败"))

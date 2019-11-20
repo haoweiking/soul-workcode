@@ -767,7 +767,7 @@ class LeaveMatchHandler(BaseClubAPIHandler):
                 name="rest_matches_refund_callback")
 class LeaveMatchCallbackHandler(BaseClubAPIHandler):
     """
-    退出赛事后, 派队退款操作的回调地址
+    退出赛事后, paidui退款操作的回调地址
     """
 
     # login_required = False
@@ -816,7 +816,7 @@ class LeaveMatchCallbackHandler(BaseClubAPIHandler):
 
     def post(self):
         """退款已采用同步回调, 此接口过期"""
-        logging.warning("调用派队退款申请已采用同步回调的方式, 此接口已过期")
+        logging.warning("调用paidui退款申请已采用同步回调的方式, 此接口已过期")
         self.write_success()
 
 
@@ -854,7 +854,7 @@ class MatchMembersHandler(BaseClubAPIHandler):
         return members
 
     def get_parteam_users(self, uids: Set[int]) -> Dict[int, ParteamUser]:
-        """获取派队用户"""
+        """获取paidui用户"""
         pt = Parteam(self.settings["parteam_api_url"])
         return pt.parteam_user(user_ids=list(uids))
 
