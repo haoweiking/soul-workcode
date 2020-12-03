@@ -1,0 +1,6 @@
+*.DS_Store
+*.swp
+.vscode/settings.json
+dump.rdb
+.Python
+env/
