@@ -11,13 +11,10 @@ def add_qr_code_to_pdf(image_pdf_path, pdf_path, write_path):
     reader remaining pages to writer
     # writer insert_page 为倒序
     '''
-
-    write_path = "var/test_cover.pdf"
     pdf_write = PdfWriter()
 
     # reader remaining pages to writer
     for index in range(len(pdf_reader.pages) - 1, 0, -1):
-        print(index)
         pdf_write.insert_page(pdf_reader.pages[index])
 
     # QR code to writer
@@ -38,6 +35,8 @@ if __name__ == "__main__":
     for pdf_file in os.listdir("."):
         if pdf_file.endswith(".pdf"):
             pdf_path = os.path.join(".", pdf_file)
+            if pdf_path.endswith("cover.pdf"):
+                continue
             output_path = f"output_{pdf_file}"
             add_qr_code_to_pdf(qr_pdf_path, pdf_path, output_path)
             print(f"Image added to {pdf_file} and saved as {output_path}")
